@@ -1,0 +1,40 @@
+# Environment & Secrets
+.env
+.env.local
+.env.production
+.env.development
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+backend/venv/
+backend/uploads/*
+!backend/uploads/.gitkeep
+*.db
+*.sqlite3
+
+# Test artifacts
+test_*.jpg
+test_*.png
+test_*.mp4
+
+# Node / Next.js
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+out/
+frontend/out/
+build/
+
+# Vercel
+.vercel
+
+# IDE & OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
