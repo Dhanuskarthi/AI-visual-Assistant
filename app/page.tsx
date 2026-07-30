@@ -4,7 +4,7 @@ import { useState } from "react";
 import UploadSection from "@/components/UploadSection";
 import DiagnosisResult from "@/components/DiagnosisResult";
 import { ApplianceDiagnosis, DiagnosisCreateResponse } from "@/types/diagnosis";
-import { ShieldCheck, AlertOctagon, Wrench, Smartphone, Car, Cpu, Home as HomeIcon } from "lucide-react";
+import { ShieldCheck, AlertOctagon, Wrench, Smartphone, Car, Cpu, Home as HomeIcon, Zap, CheckCircle2, Eye, ShieldAlert } from "lucide-react";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -45,57 +45,91 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="relative space-y-8 pb-12">
+      {/* Background Glow Effects */}
+      <div className="absolute top-10 left-1/4 w-96 h-96 bg-rose-600/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+      <div className="absolute top-40 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+
       {/* Intro hero card */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800/80 to-slate-900 border border-slate-800 rounded-3xl p-5 md:p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="space-y-1.5 text-center md:text-left">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold mb-1">
-            <ShieldCheck className="w-3.5 h-3.5" /> Universal Safety & Diagnostic Filter Active
-          </div>
-          <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">
-            Universal AI Device & Vehicle Troubleshooter
-          </h2>
-          <p className="text-xs md:text-sm text-slate-400 max-w-xl">
-            Diagnose and repair <strong>Home Appliances</strong>, <strong>Mobiles & Laptops</strong>, <strong>Bikes & Cars</strong>, and <strong>Power Systems</strong>.
-          </p>
+      <div className="relative bg-gradient-to-br from-slate-900/90 via-slate-900/95 to-slate-950/90 border border-slate-800/90 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-2xl overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-rose-500/10 to-amber-500/0 rounded-full blur-2xl pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-3 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-bold tracking-wide">
+              <ShieldCheck className="w-4 h-4 text-emerald-400 animate-pulse" />
+              <span>Universal AI Diagnostic & Safety Engine Active</span>
+            </div>
 
-          {/* Device Category Pills */}
-          <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 pt-1">
-            <span className="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 font-medium flex items-center gap-1">
-              <HomeIcon className="w-3 h-3 text-emerald-400" /> Home Appliances
-            </span>
-            <span className="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 font-medium flex items-center gap-1">
-              <Smartphone className="w-3 h-3 text-sky-400" /> Mobiles & Laptops
-            </span>
-            <span className="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 font-medium flex items-center gap-1">
-              <Car className="w-3 h-3 text-amber-400" /> Bikes & Cars
-            </span>
-            <span className="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 font-medium flex items-center gap-1">
-              <Cpu className="w-3 h-3 text-purple-400" /> Power Systems
-            </span>
-          </div>
-        </div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
+              Instant AI Vision Diagnostic <br className="hidden sm:inline" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-amber-300 to-emerald-400">
+                For All Devices & Vehicles
+              </span>
+            </h1>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-center">
-            <span className="block text-xs text-slate-400 font-medium">Universal Coverage</span>
-            <span className="text-xs font-bold text-emerald-400">All Devices & Vehicles</span>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+              Snap a picture or record a video. Our multimodal vision AI (NVIDIA Llama 3.2 Vision • Gemini Flash • GPT-4o) identifies faults, verifies safety rules, and generates instant step-by-step repair guides.
+            </p>
+
+            {/* Device Category Badges */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-2">
+              <div className="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-1.5 hover:border-emerald-500/50 transition-colors">
+                <HomeIcon className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Home Appliances</span>
+              </div>
+              <div className="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-1.5 hover:border-sky-500/50 transition-colors">
+                <Smartphone className="w-3.5 h-3.5 text-sky-400" />
+                <span>Mobiles & Laptops</span>
+              </div>
+              <div className="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-1.5 hover:border-amber-500/50 transition-colors">
+                <Car className="w-3.5 h-3.5 text-amber-400" />
+                <span>Bikes & Cars</span>
+              </div>
+              <div className="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-1.5 hover:border-purple-500/50 transition-colors">
+                <Zap className="w-3.5 h-3.5 text-purple-400" />
+                <span>Power Systems</span>
+              </div>
+            </div>
+          </div>
+
+          {/* High-Tech HUD Metrics Card */}
+          <div className="grid grid-cols-2 lg:grid-cols-1 gap-2.5 shrink-0 w-full lg:w-64">
+            <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center gap-3">
+              <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                <ShieldAlert className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Safety Gate</span>
+                <span className="text-xs font-extrabold text-emerald-300">Hard-coded Filter</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center gap-3">
+              <div className="p-2 bg-sky-500/10 text-sky-400 rounded-xl border border-sky-500/20">
+                <Eye className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Vision Engine</span>
+                <span className="text-xs font-extrabold text-sky-300">Multimodal 3.0</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Error alert */}
+      {/* Error Alert */}
       {error && (
-        <div className="p-4 bg-red-950/80 border border-red-800 rounded-2xl text-red-200 text-xs md:text-sm flex items-start gap-3">
+        <div className="p-4 bg-red-950/90 border border-red-800 rounded-2xl text-red-200 text-xs md:text-sm flex items-start gap-3 shadow-xl animate-fade-in">
           <AlertOctagon className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
           <div>
-            <strong className="font-semibold text-red-300">Diagnosis Error: </strong>
+            <strong className="font-bold text-red-300">Diagnosis Error: </strong>
             <span>{error}</span>
           </div>
         </div>
       )}
 
-      {/* Main flow: Upload or Results */}
+      {/* Main Flow: Upload or Results */}
       {!result ? (
         <UploadSection onAnalyze={handleAnalyze} isLoading={isLoading} />
       ) : (

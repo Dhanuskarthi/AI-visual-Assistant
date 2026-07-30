@@ -20,7 +20,9 @@ import {
   Check,
   Send,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Activity,
+  Award
 } from "lucide-react";
 
 interface DiagnosisResultProps {
@@ -44,12 +46,16 @@ export default function DiagnosisResult({
 
   // Brand & Model contact form state for Technical Support
   const [showContactForm, setShowContactForm] = useState<boolean>(false);
-  const [showDiyBrandDirectory, setShowDiyBrandDirectory] = useState<boolean>(true); // Default open for DIY safe as well!
+  const [showDiyBrandDirectory, setShowDiyBrandDirectory] = useState<boolean>(true);
   const [deviceBrand, setDeviceBrand] = useState<string>(diagnosis.brand_model_guess || "");
   const [deviceModel, setDeviceModel] = useState<string>("");
   const [contactPhone, setContactPhone] = useState<string>("");
   const [contactSubmitted, setContactSubmitted] = useState<boolean>(false);
   const [ticketId, setTicketId] = useState<string>("");
+
+  const totalSteps = diagnosis.repair_steps ? diagnosis.repair_steps.length : 0;
+  const completedCount = Object.values(completedSteps).filter(Boolean).length;
+  const progressPercent = totalSteps > 0 ? Math.round((completedCount / totalSteps) * 100) : 0;
 
   const toggleStep = (idx: number) => {
     setCompletedSteps((prev) => ({ ...prev, [idx]: !prev[idx] }));
@@ -87,32 +93,42 @@ export default function DiagnosisResult({
   const isDiySafe = diagnosis.is_diy_safe;
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 md:p-8 shadow-2xl space-y-6">
+    <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 md:p-8 shadow-2xl space-y-6 backdrop-blur-2xl animate-fade-in">
       {/* Header Info */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1.5">
             <span
-              className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+              className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 ${
                 isDiySafe
-                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                  : "bg-red-500/20 text-red-300 border border-red-500/40"
+                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm shadow-emerald-950"
+                  : "bg-red-500/20 text-red-300 border border-red-500/40 shadow-sm shadow-red-950"
               }`}
             >
-              {isDiySafe ? "DIY Safe Repair" : "Professional Required"}
+              {isDiySafe ? (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> DIY Safe Repair
+                </>
+              ) : (
+                <>
+                  <AlertTriangle className="w-3.5 h-3.5 text-rose-400 animate-pulse" /> Professional Required
+                </>
+              )}
             </span>
             {diagnosis.confidence_score && (
-              <span className="text-xs font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+              <span className="text-xs font-mono text-slate-300 bg-slate-800/80 px-2.5 py-0.5 rounded-lg border border-slate-700">
                 Confidence: {Math.round(diagnosis.confidence_score * 100)}%
               </span>
             )}
           </div>
-          <h2 className="text-2xl font-extrabold text-white capitalize">
+
+          <h2 className="text-2xl md:text-3xl font-extrabold text-white capitalize tracking-tight">
             {diagnosis.appliance_type}
           </h2>
+
           {diagnosis.brand_model_guess && (
-            <p className="text-xs text-amber-400 font-medium flex items-center gap-1.5 mt-0.5">
-              <Tag className="w-3.5 h-3.5" />
+            <p className="text-xs text-amber-400 font-semibold flex items-center gap-1.5 mt-1">
+              <Tag className="w-3.5 h-3.5 text-amber-400" />
               <span>Model Ident: {diagnosis.brand_model_guess}</span>
             </p>
           )}
@@ -120,7 +136,7 @@ export default function DiagnosisResult({
 
         <button
           onClick={onReset}
-          className="self-start md:self-auto px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors"
+          className="self-start md:self-auto px-4 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 shadow-md transition-all hover:scale-105"
         >
           Scan Another Device
         </button>
@@ -128,21 +144,21 @@ export default function DiagnosisResult({
 
       {/* Identified Issue & Error Code */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="md:col-span-2 bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+        <div className="md:col-span-2 bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 md:p-5">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
             Identified Fault
           </span>
-          <p className="text-sm md:text-base font-semibold text-slate-100 leading-snug">
+          <p className="text-sm md:text-base font-bold text-white leading-snug">
             {diagnosis.identified_issue}
           </p>
         </div>
 
         {diagnosis.error_code && (
-          <div className="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4 flex flex-col justify-center">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">
+          <div className="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 md:p-5 flex flex-col justify-center">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
               Error Code Displayed
             </span>
-            <span className="text-xl font-mono font-extrabold text-rose-400 bg-rose-950/40 px-3 py-1 rounded-lg border border-rose-800/50 inline-block w-fit">
+            <span className="text-xl font-mono font-extrabold text-rose-400 bg-rose-950/60 px-3 py-1 rounded-xl border border-rose-800/60 inline-block w-fit shadow-md">
               {diagnosis.error_code}
             </span>
           </div>
@@ -167,8 +183,8 @@ export default function DiagnosisResult({
               {diagnosis.safety_reasoning}
             </p>
 
-            <div className="p-3 bg-red-950/30 border border-red-900/50 rounded-xl text-red-200 text-xs">
-              <strong>Emergency Precaution:</strong> If you smell gas or see active sparking, evacuate immediately and dial your local emergency service or gas utility helpline (1906 for PNG/LPG).
+            <div className="p-3 bg-red-950/40 border border-red-900/60 rounded-xl text-red-200 text-xs">
+              <strong>Emergency Precaution:</strong> If you smell gas/fuel or see active sparking, evacuate immediately and dial your local emergency service or gas utility helpline (1906 for PNG/LPG).
             </div>
           </div>
 
@@ -199,7 +215,7 @@ export default function DiagnosisResult({
                   <span>Indian Technical Team & Brand Service Lookup</span>
                 </h3>
                 <span className="text-xs text-rose-300 font-semibold bg-rose-950/60 px-2.5 py-0.5 rounded border border-rose-800">
-                  Device Specs Required
+                  Specs Required
                 </span>
               </div>
 
@@ -217,7 +233,7 @@ export default function DiagnosisResult({
                     required
                     value={deviceBrand}
                     onChange={(e) => setDeviceBrand(e.target.value)}
-                    placeholder="e.g. Samsung, LG, Whirlpool, IFB, Godrej, Voltas, Haier"
+                    placeholder="e.g. Samsung, Apple, Maruti Suzuki, LG, Whirlpool"
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-rose-500 placeholder:text-slate-500"
                   />
                 </div>
@@ -231,7 +247,7 @@ export default function DiagnosisResult({
                     required
                     value={deviceModel}
                     onChange={(e) => setDeviceModel(e.target.value)}
-                    placeholder="e.g. WA65A4002VS or Executive Plus"
+                    placeholder="e.g. iPhone 15, WA65A4002VS, Swift ZXi"
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-rose-500 placeholder:text-slate-500"
                   />
                 </div>
@@ -327,6 +343,25 @@ export default function DiagnosisResult({
             applianceType={diagnosis.appliance_type}
           />
 
+          {/* Step Progress Completion Bar */}
+          {totalSteps > 0 && (
+            <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+                <span className="flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-emerald-400" /> Repair Completion Progress
+                </span>
+                <span className="font-mono text-emerald-300">{completedCount}/{totalSteps} Steps ({progressPercent}%)</span>
+              </div>
+
+              <div className="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-500 rounded-full shadow-[0_0_10px_#10b981]"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Ordered Repair Steps */}
           <div className="bg-slate-800/30 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-4">
             <h3 className="text-lg font-bold text-white flex items-center gap-2">
@@ -343,14 +378,14 @@ export default function DiagnosisResult({
                     onClick={() => toggleStep(idx)}
                     className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
                       isDone
-                        ? "bg-emerald-950/20 border-emerald-800/50 text-slate-400"
+                        ? "bg-emerald-950/30 border-emerald-700/60 text-slate-400"
                         : "bg-slate-800/80 border-slate-700/80 hover:border-slate-600 text-slate-100"
                     }`}
                   >
                     <div
                       className={`w-6 h-6 rounded-lg shrink-0 flex items-center justify-center font-bold text-xs mt-0.5 transition-colors ${
                         isDone
-                          ? "bg-emerald-500 text-slate-950"
+                          ? "bg-emerald-500 text-slate-950 shadow-[0_0_10px_#10b981]"
                           : "bg-slate-700 text-slate-300 border border-slate-600"
                       }`}
                     >
