@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Wrench, ShieldAlert, History, Sparkles } from "lucide-react";
+import { Wrench, History, Sparkles } from "lucide-react";
 
 export default function Header() {
   const pathname = usePathname();
@@ -32,7 +32,7 @@ export default function Header() {
             }`}
           >
             <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>Diagnose</span>
+            <span>Troubleshoot</span>
           </Link>
 
           <Link
