@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ApplianceDiagnosis } from "@/types/diagnosis";
 import SafetyBanner from "./SafetyBanner";
+import BrandServiceDirectory from "./BrandServiceDirectory";
 import {
   Wrench,
   Clock,
@@ -15,8 +16,7 @@ import {
   ShieldCheck,
   Building2,
   Check,
-  Send,
-  CheckCircle
+  Send
 } from "lucide-react";
 
 interface DiagnosisResultProps {
@@ -167,45 +167,39 @@ export default function DiagnosisResult({
             </div>
           </div>
 
-          {/* Contact Technical Support Section with Brand/Model Collection */}
+          {/* Contact Form OR Directory View */}
           {!showContactForm && !contactSubmitted ? (
-            <div className="pt-2 text-center">
+            <div className="pt-2 text-center space-y-4">
               <button
                 type="button"
                 onClick={() => setShowContactForm(true)}
                 className="inline-flex items-center gap-2.5 px-6 py-4 rounded-2xl bg-gradient-to-r from-red-600 to-rose-700 text-white font-extrabold text-base shadow-xl shadow-red-950/80 hover:scale-[1.02] transition-transform"
               >
                 <PhoneCall className="w-5 h-5 animate-pulse" />
-                <span>Contact Technical Support Team</span>
+                <span>Contact Technical Support & Find Services</span>
               </button>
             </div>
           ) : contactSubmitted ? (
-            <div className="p-6 bg-emerald-950/50 border border-emerald-600/60 rounded-2xl text-center space-y-2 animate-fade-in">
-              <CheckCircle className="w-10 h-10 text-emerald-400 mx-auto" />
-              <h3 className="text-lg font-bold text-emerald-200">Support Ticket Created (#{ticketId})</h3>
-              <p className="text-xs md:text-sm text-slate-300 max-w-md mx-auto">
-                Device details for <strong className="text-white">{deviceBrand || diagnosis.appliance_type}</strong> (Model: <strong className="text-white">{deviceModel || "N/A"}</strong>) have been dispatched to our technical support team.
-              </p>
-              {contactPhone && (
-                <p className="text-xs text-emerald-300/80">
-                  A licensed technician will call you back shortly at <span className="font-mono font-bold text-white">{contactPhone}</span>.
-                </p>
-              )}
-            </div>
+            <BrandServiceDirectory
+              brandName={deviceBrand || diagnosis.brand_model_guess || diagnosis.appliance_type}
+              modelNumber={deviceModel}
+              applianceType={diagnosis.appliance_type}
+              ticketId={ticketId}
+            />
           ) : (
             <form onSubmit={handleContactSubmit} className="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 md:p-6 space-y-4 animate-fade-in">
               <div className="flex items-center justify-between pb-3 border-b border-slate-700">
                 <h3 className="font-bold text-white text-base flex items-center gap-2">
                   <PhoneCall className="w-4 h-4 text-rose-400" />
-                  <span>Technical Team Service Dispatch</span>
+                  <span>Technical Team & Brand Service Lookup</span>
                 </h3>
                 <span className="text-xs text-rose-300 font-semibold bg-rose-950/60 px-2.5 py-0.5 rounded border border-rose-800">
-                  Device Details Required
+                  Device Specs Required
                 </span>
               </div>
 
               <p className="text-xs text-slate-300">
-                Please verify the brand and model number of your device so our certified technical team can prepare the correct replacement components and safety gear.
+                Enter your device brand and model to automatically access official brand service websites, hotline numbers, and nearby geolocation repair services.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -218,7 +212,7 @@ export default function DiagnosisResult({
                     required
                     value={deviceBrand}
                     onChange={(e) => setDeviceBrand(e.target.value)}
-                    placeholder="e.g. Whirlpool, LG, Samsung, Rheem"
+                    placeholder="e.g. Samsung, LG, Whirlpool, Rheem"
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-rose-500"
                   />
                 </div>
@@ -265,10 +259,21 @@ export default function DiagnosisResult({
                   className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs md:text-sm flex items-center gap-2 shadow-lg shadow-rose-900/40"
                 >
                   <Send className="w-4 h-4" />
-                  <span>Submit to Technical Team</span>
+                  <span>Get Brand Support & Nearby Services</span>
                 </button>
               </div>
             </form>
+          )}
+
+          {/* Always display Brand Directory if already filled or if user wants direct access */}
+          {showContactForm && (
+            <div className="pt-4 border-t border-slate-800">
+              <BrandServiceDirectory
+                brandName={deviceBrand || diagnosis.brand_model_guess || diagnosis.appliance_type}
+                modelNumber={deviceModel}
+                applianceType={diagnosis.appliance_type}
+              />
+            </div>
           )}
         </div>
       ) : (
