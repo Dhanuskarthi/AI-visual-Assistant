@@ -4,7 +4,7 @@ import { useState } from "react";
 import UploadSection from "@/components/UploadSection";
 import DiagnosisResult from "@/components/DiagnosisResult";
 import { ApplianceDiagnosis, DiagnosisCreateResponse } from "@/types/diagnosis";
-import { ShieldCheck, AlertOctagon, Wrench } from "lucide-react";
+import { ShieldCheck, AlertOctagon, Wrench, Smartphone, Car, Cpu, Home as HomeIcon } from "lucide-react";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -27,7 +27,7 @@ export default function Home() {
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.detail || "Failed to analyze appliance image");
+        throw new Error(errData.detail || "Failed to analyze device image");
       }
 
       const data: DiagnosisCreateResponse = await response.json();
@@ -48,22 +48,38 @@ export default function Home() {
     <div className="space-y-6">
       {/* Intro hero card */}
       <div className="bg-gradient-to-r from-slate-900 via-slate-800/80 to-slate-900 border border-slate-800 rounded-3xl p-5 md:p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="space-y-1 text-center md:text-left">
+        <div className="space-y-1.5 text-center md:text-left">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold mb-1">
-            <ShieldCheck className="w-3.5 h-3.5" /> Hard-coded Safety Filter Active
+            <ShieldCheck className="w-3.5 h-3.5" /> Universal Safety & Diagnostic Filter Active
           </div>
           <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">
-            Instant Appliance Fault Identification
+            Universal AI Device & Vehicle Troubleshooter
           </h2>
           <p className="text-xs md:text-sm text-slate-400 max-w-xl">
-            Snap a picture or record a short video. Our vision AI assesses safety hazards before offering DIY repair steps.
+            Diagnose and repair <strong>Home Appliances</strong>, <strong>Mobiles & Laptops</strong>, <strong>Bikes & Cars</strong>, and <strong>Power Systems</strong>.
           </p>
+
+          {/* Device Category Pills */}
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 pt-1">
+            <span className="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 font-medium flex items-center gap-1">
+              <HomeIcon className="w-3 h-3 text-emerald-400" /> Home Appliances
+            </span>
+            <span className="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 font-medium flex items-center gap-1">
+              <Smartphone className="w-3 h-3 text-sky-400" /> Mobiles & Laptops
+            </span>
+            <span className="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 font-medium flex items-center gap-1">
+              <Car className="w-3 h-3 text-amber-400" /> Bikes & Cars
+            </span>
+            <span className="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 font-medium flex items-center gap-1">
+              <Cpu className="w-3 h-3 text-purple-400" /> Power Systems
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
           <div className="px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-center">
-            <span className="block text-xs text-slate-400 font-medium">Safety Gate</span>
-            <span className="text-xs font-bold text-emerald-400">Strict Post-Filter</span>
+            <span className="block text-xs text-slate-400 font-medium">Universal Coverage</span>
+            <span className="text-xs font-bold text-emerald-400">All Devices & Vehicles</span>
           </div>
         </div>
       </div>

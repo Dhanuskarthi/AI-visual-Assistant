@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, ChangeEvent, DragEvent } from "react";
-import { Camera, Upload, Film, FileImage, Sparkles, AlertCircle, RefreshCw } from "lucide-react";
+import { Camera, Upload, Film, FileImage, Sparkles, AlertCircle, RefreshCw, Smartphone, Car, Wrench, Home as HomeIcon } from "lucide-react";
 
 interface UploadSectionProps {
   onAnalyze: (file: File) => void;
@@ -38,7 +38,6 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
   };
 
   const createSampleFile = async (name: string, type: string) => {
-    // Create a dummy mock image blob for testing
     const canvas = document.createElement("canvas");
     canvas.width = 640;
     canvas.height = 480;
@@ -77,10 +76,10 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
     <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 md:p-8 shadow-2xl backdrop-blur-xl">
       <div className="text-center max-w-lg mx-auto mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">
-          Visual Fault Diagnostics
+          Universal Visual Diagnostics
         </h2>
         <p className="text-slate-400 text-xs md:text-sm mt-1">
-          Upload a clear photo or short video of the appliance error code, leak, or breaker fault.
+          Upload a photo or short video of any <strong>Appliance</strong>, <strong>Mobile/Laptop</strong>, or <strong>Bike/Car</strong> issue.
         </p>
       </div>
 
@@ -180,7 +179,7 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
             {isLoading ? (
               <>
                 <RefreshCw className="w-5 h-5 animate-spin text-amber-300" />
-                <span>Diagnosing Appliance & Assessing Safety...</span>
+                <span>Diagnosing Device/Vehicle & Assessing Safety...</span>
               </>
             ) : (
               <>
@@ -195,40 +194,48 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
       {/* Quick Test Samples */}
       <div className="mt-8 pt-6 border-t border-slate-800">
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 text-center">
-          Or test with sample scenarios:
+          Or test with sample scenarios across categories:
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <button
+            type="button"
+            onClick={() => handleSampleClick("mobile_phone")}
+            className="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-left text-xs font-medium text-slate-300 transition-colors"
+          >
+            <span className="block text-sky-400 font-bold mb-0.5 flex items-center gap-1">
+              <Smartphone className="w-3 h-3" /> Mobile / Phone
+            </span>
+            <span className="text-[11px] text-slate-400">Charging port & battery</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleSampleClick("bike_car_vehicle")}
+            className="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-left text-xs font-medium text-slate-300 transition-colors"
+          >
+            <span className="block text-amber-400 font-bold mb-0.5 flex items-center gap-1">
+              <Car className="w-3 h-3" /> Bike / Car Vehicle
+            </span>
+            <span className="text-[11px] text-slate-400">12V Battery terminal</span>
+          </button>
           <button
             type="button"
             onClick={() => handleSampleClick("dryer_lint")}
             className="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-left text-xs font-medium text-slate-300 transition-colors"
           >
-            <span className="block text-emerald-400 font-bold mb-0.5">Dryer Lint Trap</span>
-            <span className="text-[11px] text-slate-400">Safe DIY cosmetic fix</span>
+            <span className="block text-emerald-400 font-bold mb-0.5 flex items-center gap-1">
+              <HomeIcon className="w-3 h-3" /> Home Appliance
+            </span>
+            <span className="text-[11px] text-slate-400">Dryer lint trap</span>
           </button>
           <button
             type="button"
             onClick={() => handleSampleClick("circuit_breaker")}
             className="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-left text-xs font-medium text-slate-300 transition-colors"
           >
-            <span className="block text-rose-400 font-bold mb-0.5">Circuit Breaker</span>
-            <span className="text-[11px] text-slate-400">Electrical spark hazard</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSampleClick("gas_heater")}
-            className="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-left text-xs font-medium text-slate-300 transition-colors"
-          >
-            <span className="block text-amber-400 font-bold mb-0.5">Gas Appliance</span>
-            <span className="text-[11px] text-slate-400">Gas smell / ignition fault</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSampleClick("in_wall_leak")}
-            className="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-left text-xs font-medium text-slate-300 transition-colors"
-          >
-            <span className="block text-sky-400 font-bold mb-0.5">Wall Plumbing</span>
-            <span className="text-[11px] text-slate-400">Behind-wall leak</span>
+            <span className="block text-rose-400 font-bold mb-0.5 flex items-center gap-1">
+              <Wrench className="w-3 h-3" /> Circuit Breaker
+            </span>
+            <span className="text-[11px] text-slate-400">High-voltage spark</span>
           </button>
         </div>
       </div>

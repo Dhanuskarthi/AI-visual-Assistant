@@ -9,9 +9,21 @@ from app.config import settings
 from app.schemas import ApplianceDiagnosis, ChatRequest, ChatMessage
 from app.safety import evaluate_safety
 
-EXACT_SYSTEM_PROMPT = """You are a careful home-appliance diagnostic assistant. Identify the appliance, any visible error code or fault, and describe what you observe factually. Do not guess a specific brand or model unless clearly visible in the image. Assess safety risk conservatively — if there is ANY doubt about electrical, gas, or structural water risk, classify it as requiring a professional rather than offering DIY steps. Only provide repair_steps for genuinely low-risk, cosmetic, or mechanical issues (e.g. clearing a lint filter, resetting a breaker with no gas/electrical damage visible, tightening a visible loose fitting). Return ONLY valid JSON matching this schema:
+EXACT_SYSTEM_PROMPT = """You are an expert diagnostic assistant for ALL types of devices, equipment, appliances, electronics, and vehicles.
+This includes:
+1. Home & Kitchen Appliances (Washing Machine, Refrigerator, AC, Water Heater/Geyser, Microwave, Dishwasher, Fan, Chimney, Water Purifier).
+2. Mobiles & Computing (Smartphones, iPhones, Laptops, MacBooks, Tablets, iPads, Smartwatches, Smart TVs, Headphones, Gaming Consoles).
+3. Automotive & Outdoor Devices (Cars, Motorcycles, Bikes, Scooters, EVs, Lawn Mowers, Generators, Power Tools).
+4. Electrical & Power Systems (Circuit Breaker Panels, Solar Inverters, UPS, Batteries).
+
+Identify the specific device/appliance/vehicle, any visible error code or physical fault, and describe what you observe factually.
+Assess safety risk conservatively:
+- Classify as "call_a_professional" / False DIY if there is gas/fuel leaks, high-voltage EV/mains wiring, swollen lithium batteries, brake line failures, or in-wall plumbing leaks.
+- Provide step-by-step repair_steps for safe DIY maintenance (e.g. software reset, cleaning phone port, replacing wiper blades/key fob battery, cleaning dryer lint filter, resetting a tripped household breaker, replacing air filter).
+
+Return ONLY valid JSON matching this schema:
 {
-  "appliance_type": "str",
+  "appliance_type": "str (e.g. 'smartphone', 'laptop', 'motorcycle', 'washing machine', 'car engine')",
   "brand_model_guess": "str or null",
   "identified_issue": "str",
   "error_code": "str or null",
@@ -144,12 +156,52 @@ def diagnose_with_openai(image_path: str, api_key: str) -> dict:
 
 def fallback_smart_diagnosis(file_path: str, original_filename: str = "") -> dict:
     """
-    Fallback diagnostic analysis if no API key is set or API fails.
-    Simulates realistic appliance diagnostics based on filename.
+    Fallback diagnostic analysis covering Appliances, Mobiles, Laptops, and Vehicles.
     """
     search_text = f"{file_path} {original_filename}".lower()
     
-    if "breaker" in search_text or "electric" in search_text or "wire" in search_text or "spark" in search_text:
+    if "mobile" in search_text or "phone" in search_text or "screen" in search_text or "battery" in search_text:
+        return {
+            "appliance_type": "smartphone",
+            "brand_model_guess": "Samsung Galaxy / iPhone Series",
+            "identified_issue": "Charging port debris accumulation or slow charging fault",
+            "error_code": None,
+            "confidence_score": 0.89,
+            "safety_risk_level": "low",
+            "safety_reasoning": "Clearing lint/debris from external charging port is a safe user maintenance procedure.",
+            "is_diy_safe": True,
+            "required_tools": ["Non-conductive wooden toothpick", "Soft brush", "Compressed air canister"],
+            "repair_steps": [
+                "Power off the mobile device completely.",
+                "Gently insert a wooden toothpick into the charging port slot to scrape out lint.",
+                "Use a short burst of compressed air to clear remaining dust.",
+                "Plug in the charger to verify normal fast-charging operation."
+            ],
+            "estimated_time_minutes": 5,
+            "requires_professional_reason": None
+        }
+    elif "bike" in search_text or "car" in search_text or "vehicle" in search_text or "engine" in search_text:
+        return {
+            "appliance_type": "car battery / starter system",
+            "brand_model_guess": "Maruti Suzuki / Hyundai Motor",
+            "identified_issue": "Corroded battery terminal connectors causing starting failure",
+            "error_code": "Check Engine - Low Voltage",
+            "confidence_score": 0.85,
+            "safety_risk_level": "low",
+            "safety_reasoning": "Cleaning 12V lead-acid battery terminal corrosion with baking soda solution is safe with protective gloves.",
+            "is_diy_safe": True,
+            "required_tools": ["10mm wrench", "Baking soda and water solution", "Wire brush", "Safety gloves"],
+            "repair_steps": [
+                "Ensure engine ignition is OFF and keys removed.",
+                "Wear protective gloves and disconnect negative (-) terminal clamp first using 10mm wrench.",
+                "Disconnect positive (+) terminal clamp.",
+                "Scrub white corrosion buildup using baking soda solution and wire brush.",
+                "Wipe dry, coat terminals with petroleum jelly, and securely reconnect positive (+) then negative (-) terminals."
+            ],
+            "estimated_time_minutes": 15,
+            "requires_professional_reason": None
+        }
+    elif "breaker" in search_text or "electric" in search_text or "wire" in search_text or "spark" in search_text:
         return {
             "appliance_type": "circuit breaker panel",
             "brand_model_guess": "Square D / Schneider Electric",
@@ -164,39 +216,9 @@ def fallback_smart_diagnosis(file_path: str, original_filename: str = "") -> dic
             "estimated_time_minutes": None,
             "requires_professional_reason": "High-voltage electrical circuit work requires a licensed electrician to inspect for short circuits or faulty busbars."
         }
-    elif "gas" in search_text or "stove" in search_text or "heater" in search_text:
-        return {
-            "appliance_type": "gas water heater",
-            "brand_model_guess": "Rheem Performance Series",
-            "identified_issue": "Ignition failure on gas burner assembly with reported gas smell",
-            "error_code": "E02",
-            "confidence_score": 0.82,
-            "safety_risk_level": "call_a_professional",
-            "safety_reasoning": "Gas line or ignition assembly fault carries explosive and carbon monoxide safety risks.",
-            "is_diy_safe": False,
-            "required_tools": [],
-            "repair_steps": [],
-            "estimated_time_minutes": None,
-            "requires_professional_reason": "Gas supply and ignition repairs must be certified by a licensed gas plumbing specialist."
-        }
-    elif "leak" in search_text or "pipe" in search_text or "wall" in search_text:
-        return {
-            "appliance_type": "washing machine supply line",
-            "brand_model_guess": "Whirlpool Front Load",
-            "identified_issue": "Water leakage detected near behind-wall supply shutoff valve",
-            "error_code": "E4",
-            "confidence_score": 0.79,
-            "safety_risk_level": "call_a_professional",
-            "safety_reasoning": "In-wall plumbing leaks carry severe risk of structural water damage and mold growth.",
-            "is_diy_safe": False,
-            "required_tools": [],
-            "repair_steps": [],
-            "estimated_time_minutes": None,
-            "requires_professional_reason": "Plumbing repairs behind walls or involving main water valves require a licensed plumber."
-        }
     else:
         return {
-            "appliance_type": "clothes dryer",
+            "appliance_type": "clothes dryer / appliance",
             "brand_model_guess": "LG Electronics",
             "identified_issue": "Restricted airflow due to lint screen buildup",
             "error_code": "d80",
@@ -256,14 +278,14 @@ def diagnose_appliance(file_path: str, media_type: str, original_filename: str =
     return final_diagnosis
 
 def answer_repair_chat(chat_req: ChatRequest) -> str:
-    """Answers user follow-up questions for appliance troubleshooting."""
+    """Answers user follow-up questions for device & vehicle troubleshooting."""
     last_user_msg = chat_req.messages[-1].content if chat_req.messages else "How do I fix this?"
     
     if not chat_req.is_diy_safe:
         return (
             f"SAFETY NOTICE: The issue with your {chat_req.appliance_type} ({chat_req.identified_issue}) "
-            "has been classified as requiring a licensed professional due to high risk (electrical, gas, or plumbing). "
-            "Please do not attempt internal disassembly. We strongly recommend contacting authorized brand support or a licensed technician."
+            "has been classified as requiring a licensed professional due to high risk (electrical, gas, fuel leak, or swollen battery). "
+            "Please do not attempt internal disassembly. We strongly recommend contacting authorized brand support or a licensed technician/mechanic."
         )
 
     # NVIDIA LLM Chat Call
@@ -273,7 +295,7 @@ def answer_repair_chat(chat_req: ChatRequest) -> str:
             import openai
             client = openai.OpenAI(base_url="https://integrate.api.nvidia.com/v1", api_key=nvidia_key)
             system_prompt = (
-                f"You are a helpful home appliance repair assistant. "
+                f"You are an expert repair assistant for home appliances, electronics, laptops, mobiles, and vehicles. "
                 f"The user is repairing a {chat_req.appliance_type} with identified issue: '{chat_req.identified_issue}'. "
                 f"Provide concise, step-by-step practical advice. Keep answers under 150 words."
             )
@@ -296,7 +318,7 @@ def answer_repair_chat(chat_req: ChatRequest) -> str:
             from google import genai
             client = genai.Client(api_key=gemini_key)
             system_prompt = (
-                f"You are a helpful home appliance repair assistant. "
+                f"You are an expert repair assistant for home appliances, electronics, laptops, mobiles, and vehicles. "
                 f"The user is repairing a {chat_req.appliance_type} with identified issue: '{chat_req.identified_issue}'. "
                 f"Provide concise, step-by-step practical advice. Keep answers under 150 words."
             )
@@ -311,16 +333,14 @@ def answer_repair_chat(chat_req: ChatRequest) -> str:
     # Smart Fallback Assistant
     msg_lower = last_user_msg.lower()
     if "where" in msg_lower or "location" in msg_lower or "find" in msg_lower:
-        return f"For most {chat_req.appliance_type} models, the filter or access panel is located at the front bottom door or inside the main chamber. Make sure to unplug the unit before opening access panels."
+        return f"For your {chat_req.appliance_type}, inspect the main user access port or battery compartment. Turn off power or engine ignition before inspecting."
     elif "tool" in msg_lower or "wrench" in msg_lower or "screwdriver" in msg_lower:
-        return "Standard repairs require a Phillips #2 screwdriver, a pair of adjustable pliers, and a towel to catch residual moisture."
-    elif "power" in msg_lower or "safety" in msg_lower or "electric" in msg_lower:
-        return "Always disconnect the main power plug from the wall outlet or switch off the dedicated circuit breaker before touching internal components."
+        return "Standard DIY maintenance requires basic hand tools: screwdrivers, pliers, socket set, or non-conductive pry tools."
     else:
         return (
             f"To resolve {chat_req.identified_issue} on your {chat_req.appliance_type}: "
-            "1. Unplug the appliance.\n"
-            "2. Inspect visible seals and filters for debris.\n"
-            "3. Clean components using warm water and a soft lint-free cloth.\n"
-            "4. Reassemble and plug back in to perform a test run."
+            "1. Turn off device power or ignition.\n"
+            "2. Inspect visible connectors and filters for dust or corrosion.\n"
+            "3. Clean using appropriate soft cloths or contacts cleaner.\n"
+            "4. Reassemble and test carefully."
         )

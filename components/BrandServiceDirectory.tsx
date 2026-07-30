@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ExternalLink, Phone, MapPin, Globe, Shield, Wrench, Navigation, CheckCircle2, Building } from "lucide-react";
+import { ExternalLink, Phone, MapPin, Globe, Shield, Wrench, Navigation, CheckCircle2, Building, Car, Smartphone, Laptop } from "lucide-react";
 
 interface BrandServiceDirectoryProps {
   brandName: string;
@@ -14,92 +14,213 @@ interface BrandInfo {
   name: string;
   officialServiceUrl: string;
   supportPhone: string;
-  partsUrl?: string;
+  category?: "home" | "mobile" | "auto" | "electronics";
 }
 
-// Comprehensive Indian Market Brand Directory with Official Support Portals & Toll-Free Tolls
+// Comprehensive All-Device Indian Market Brand Directory
 const INDIAN_BRAND_DIRECTORY: Record<string, BrandInfo> = {
+  // Mobile & Laptops & Computing
+  apple: {
+    name: "Apple India (iPhone/Mac/iPad)",
+    officialServiceUrl: "https://support.apple.com/en-in",
+    supportPhone: "000800 100 9009 (Toll-Free)",
+    category: "mobile"
+  },
+  xiaomi: {
+    name: "Xiaomi / Redmi India",
+    officialServiceUrl: "https://www.mi.com/in/service/repair/",
+    supportPhone: "1800 103 6286",
+    category: "mobile"
+  },
+  redmi: {
+    name: "Redmi / Mi India",
+    officialServiceUrl: "https://www.mi.com/in/service/repair/",
+    supportPhone: "1800 103 6286",
+    category: "mobile"
+  },
+  oneplus: {
+    name: "OnePlus India",
+    officialServiceUrl: "https://www.oneplus.in/support",
+    supportPhone: "1800 102 8411",
+    category: "mobile"
+  },
+  realme: {
+    name: "Realme India",
+    officialServiceUrl: "https://www.realme.com/in/support",
+    supportPhone: "1800 102 2777",
+    category: "mobile"
+  },
+  vivo: {
+    name: "Vivo India",
+    officialServiceUrl: "https://www.vivo.com/in/support/service-center",
+    supportPhone: "1800 208 3388 / 1800 102 3388",
+    category: "mobile"
+  },
+  oppo: {
+    name: "Oppo India",
+    officialServiceUrl: "https://support.oppo.com/in/",
+    supportPhone: "1800 103 2777",
+    category: "mobile"
+  },
+  lenovo: {
+    name: "Lenovo India (Laptops/Tabs)",
+    officialServiceUrl: "https://support.lenovo.com/in/en/",
+    supportPhone: "1800 419 7555",
+    category: "mobile"
+  },
+  hp: {
+    name: "HP India (Laptops/Desktops)",
+    officialServiceUrl: "https://support.hp.com/in-en",
+    supportPhone: "1800 258 7170",
+    category: "mobile"
+  },
+  dell: {
+    name: "Dell India (Laptops/Alienware)",
+    officialServiceUrl: "https://www.dell.com/support/home/en-in",
+    supportPhone: "1800 425 4026 / 1800 425 8045",
+    category: "mobile"
+  },
+  asus: {
+    name: "Asus India (ROG/Laptops)",
+    officialServiceUrl: "https://www.asus.com/in/support/",
+    supportPhone: "1800 209 0365",
+    category: "mobile"
+  },
+  acer: {
+    name: "Acer India",
+    officialServiceUrl: "https://www.acer.com/in-en/support",
+    supportPhone: "1800 11 6677",
+    category: "mobile"
+  },
+
+  // Automotive: Bikes, Cars & EVs
+  "maruti suzuki": {
+    name: "Maruti Suzuki Arena / NEXA",
+    officialServiceUrl: "https://www.marutisuzuki.com/service",
+    supportPhone: "1800 102 1800 (Maruti Care)",
+    category: "auto"
+  },
+  maruti: {
+    name: "Maruti Suzuki Service",
+    officialServiceUrl: "https://www.marutisuzuki.com/service",
+    supportPhone: "1800 102 1800",
+    category: "auto"
+  },
+  hyundai: {
+    name: "Hyundai Motor India",
+    officialServiceUrl: "https://www.hyundai.com/in/en/connect-to-service",
+    supportPhone: "1800 11 4645 (Roadside Assistance)",
+    category: "auto"
+  },
+  tata: {
+    name: "Tata Motors (Cars & EVs)",
+    officialServiceUrl: "https://cars.tatamotors.com/service.html",
+    supportPhone: "1800 209 8282 (Tata Motors Care)",
+    category: "auto"
+  },
+  mahindra: {
+    name: "Mahindra & Mahindra Auto",
+    officialServiceUrl: "https://www.mahindrasyouv.com/service",
+    supportPhone: "1800 209 6006 (WithYouHamesha)",
+    category: "auto"
+  },
+  hero: {
+    name: "Hero MotoCorp (Bikes)",
+    officialServiceUrl: "https://www.heromotocorp.com/en-in/reach-us/service-booking.html",
+    supportPhone: "1800 266 0018",
+    category: "auto"
+  },
+  tvs: {
+    name: "TVS Motor Company",
+    officialServiceUrl: "https://www.tvsmotor.com/service-and-maintenance",
+    supportPhone: "1800 258 7111",
+    category: "auto"
+  },
+  bajaj: {
+    name: "Bajaj Auto / Electricals",
+    officialServiceUrl: "https://www.bajajauto.com/service/service-center",
+    supportPhone: "1800 233 2453 / 1800 102 5963",
+    category: "auto"
+  },
+  honda: {
+    name: "Honda 2-Wheelers & Cars",
+    officialServiceUrl: "https://www.honda2wheelersindia.com/customer-service",
+    supportPhone: "1800 103 3434 / 1800 113 121",
+    category: "auto"
+  },
+  "royal enfield": {
+    name: "Royal Enfield Motorcycles",
+    officialServiceUrl: "https://www.royalenfield.com/in/en/support/",
+    supportPhone: "1800 210 0007 (RE Care)",
+    category: "auto"
+  },
+  yamaha: {
+    name: "Yamaha Motor India",
+    officialServiceUrl: "https://www.yamaha-motor-india.com/yamaha-service.html",
+    supportPhone: "1800 420 1600",
+    category: "auto"
+  },
+
+  // Home & Kitchen Appliances
   samsung: {
-    name: "Samsung India",
+    name: "Samsung India (Home & Mobile)",
     officialServiceUrl: "https://www.samsung.com/in/support/service-center/",
     supportPhone: "1800 40 7267864 (1800 40 SAMSUNG)",
-    partsUrl: "https://www.samsung.com/in/support/spare-parts/",
+    category: "home"
   },
   lg: {
     name: "LG Electronics India",
     officialServiceUrl: "https://www.lg.com/in/support/locate-service-center",
     supportPhone: "1800 315 9999 / 1800 180 9999",
-    partsUrl: "https://www.lg.com/in/support/book-a-repair",
+    category: "home"
   },
   whirlpool: {
     name: "Whirlpool India",
     officialServiceUrl: "https://www.whirlpoolindia.com/service-support",
     supportPhone: "1800 208 1800",
+    category: "home"
   },
   ifb: {
     name: "IFB Home Appliances India",
     officialServiceUrl: "https://www.ifbappliances.com/service",
     supportPhone: "1800 3000 5678 / 09223010101",
+    category: "home"
   },
   godrej: {
     name: "Godrej Appliances India",
     officialServiceUrl: "https://www.godrej.com/godrej-appliances/service",
     supportPhone: "1800 209 5511",
+    category: "home"
   },
   haier: {
     name: "Haier India",
     officialServiceUrl: "https://www.haier.com/in/service-support/",
     supportPhone: "1800 102 9999 / 1800 419 9999",
+    category: "home"
   },
   voltas: {
     name: "Voltas TATA India",
     officialServiceUrl: "https://www.voltas.com/pages/service",
     supportPhone: "1860 233 4555 / 9650694555",
+    category: "home"
   },
   "blue star": {
     name: "Blue Star India",
     officialServiceUrl: "https://www.bluestarindia.com/customer-service",
     supportPhone: "1800 209 1177",
+    category: "home"
   },
   bosch: {
-    name: "Bosch Home Appliances India",
+    name: "Bosch India (Home & Auto)",
     officialServiceUrl: "https://www.bosch-home.in/service",
     supportPhone: "1800 266 1880",
+    category: "home"
   },
-  lloyd: {
-    name: "Lloyd / Havells India",
-    officialServiceUrl: "https://www.havells.com/service",
-    supportPhone: "1800 103 1313 / 1800 11 0303",
-  },
-  havells: {
-    name: "Havells India",
-    officialServiceUrl: "https://www.havells.com/service",
-    supportPhone: "1800 103 1313",
-  },
-  panasonic: {
-    name: "Panasonic India",
-    officialServiceUrl: "https://www.panasonic.com/in/support.html",
-    supportPhone: "1800 103 1333 / 1800 108 1333",
-  },
-  bajaj: {
-    name: "Bajaj Electricals India",
-    officialServiceUrl: "https://www.bajajelectricals.com/customer-care/",
-    supportPhone: "1800 102 5963 / 022 4128 0000",
-  },
-  crompton: {
-    name: "Crompton Greaves India",
-    officialServiceUrl: "https://www.crompton.co.in/service/",
-    supportPhone: "1800 419 0505",
-  },
-  orient: {
-    name: "Orient Electric India",
-    officialServiceUrl: "https://www.orientelectric.com/support",
-    supportPhone: "1800 103 7574",
-  },
-  philips: {
-    name: "Philips India",
-    officialServiceUrl: "https://www.philips.co.in/c-w/support-home.html",
-    supportPhone: "1800 102 2929",
+  sony: {
+    name: "Sony India (TV/Audio/PlayStation)",
+    officialServiceUrl: "https://www.sony.co.in/electronics/support",
+    supportPhone: "1800 103 7799",
+    category: "electronics"
   }
 };
 
@@ -121,7 +242,7 @@ export default function BrandServiceDirectory({
   const brandInfo: BrandInfo = matchedKey
     ? INDIAN_BRAND_DIRECTORY[matchedKey]
     : {
-        name: brandName ? `${brandName} India` : "Appliance Manufacturer India",
+        name: brandName ? `${brandName} Service Care` : "Authorized Brand Service Center",
         officialServiceUrl: `https://www.google.co.in/search?q=${encodeURIComponent((brandName || applianceType) + " official service support India")}`,
         supportPhone: "1800 102 9999 (National Toll-Free Service)",
       };
@@ -150,17 +271,18 @@ export default function BrandServiceDirectory({
     handleGetLocation();
   }, []);
 
+  const cleanLocationInput = manualCity.trim().slice(0, 30);
   const searchQuery = encodeURIComponent(
     `${brandName || ""} ${applianceType || ""} repair service`
   );
 
   const googleMapsUrl = coords
     ? `https://www.google.co.in/maps/search/${searchQuery}/@${coords.lat},${coords.lng},13z`
-    : `https://www.google.co.in/maps/search/${searchQuery}+near+${encodeURIComponent(manualCity || "India")}`;
+    : `https://www.google.co.in/maps/search/${searchQuery}+near+${encodeURIComponent(cleanLocationInput || "India")}`;
 
   const urbanCompanyUrl = `https://www.urbancompany.com`;
-  const justDialUrl = manualCity
-    ? `https://www.justdial.com/${encodeURIComponent(manualCity)}/${encodeURIComponent((brandName || applianceType) + " Repair Services")}`
+  const justDialUrl = cleanLocationInput
+    ? `https://www.justdial.com/${encodeURIComponent(cleanLocationInput)}/${encodeURIComponent((brandName || applianceType) + " Repair Services")}`
     : `https://www.justdial.com/India/Appliance-Repair-Services`;
   const sulekhaUrl = `https://www.sulekha.com/${encodeURIComponent((brandName || applianceType).toLowerCase().replace(/\s+/g, "-"))}-repair-services`;
 
@@ -186,12 +308,12 @@ export default function BrandServiceDirectory({
             <Shield className="w-4 h-4" /> Official Brand Service Hub (India)
           </span>
           <span className="text-[11px] font-semibold text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
-            Authorized Support
+            Authorized Care
           </span>
         </div>
 
         <h3 className="text-lg font-extrabold text-white">
-          {brandInfo.name} Authorized Service & Care
+          {brandInfo.name} Authorized Support & Repair
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
@@ -247,12 +369,13 @@ export default function BrandServiceDirectory({
           </p>
         )}
 
-        {/* Manual City/Pincode Input for India */}
+        {/* Manual City/Pincode Input with Validation */}
         <div className="flex items-center gap-2 pt-1">
           <input
             type="text"
+            maxLength={30}
             value={manualCity}
-            onChange={(e) => setManualCity(e.target.value)}
+            onChange={(e) => setManualCity(e.target.value.slice(0, 30))}
             placeholder="Enter City or Pincode (e.g. Chennai, Mumbai, Bengaluru, Delhi, 600001)"
             className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-rose-500 placeholder:text-slate-500"
           />
