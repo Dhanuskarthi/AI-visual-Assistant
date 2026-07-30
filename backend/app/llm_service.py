@@ -87,6 +87,35 @@ def diagnose_with_gemini(image_path: str, api_key: str) -> dict:
             print(f"Gemini call error: {e2}")
             raise e2
 
+def diagnose_with_nvidia(image_path: str, api_key: str) -> dict:
+    """Call NVIDIA NIM OpenAI-compatible Vision API."""
+    import openai
+    client = openai.OpenAI(
+        base_url="https://integrate.api.nvidia.com/v1",
+        api_key=api_key
+    )
+    base64_image = encode_image_base64(image_path)
+    
+    response = client.chat.completions.create(
+        model="meta/llama-3.2-11b-vision-instruct",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": EXACT_SYSTEM_PROMPT},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
+                    }
+                ]
+            }
+        ],
+        temperature=0.2
+    )
+    content = response.choices[0].message.content
+    clean_text = content.replace("```json", "").replace("```", "").strip()
+    return json.loads(clean_text)
+
 def diagnose_with_openai(image_path: str, api_key: str) -> dict:
     """Call OpenAI GPT-4o-mini vision API."""
     import openai
@@ -193,10 +222,18 @@ def diagnose_appliance(file_path: str, media_type: str, original_filename: str =
 
     raw_data = None
     gemini_key = settings.GEMINI_API_KEY
+    nvidia_key = settings.NVIDIA_API_KEY
     openai_key = settings.OPENAI_API_KEY
     provider = settings.LLM_PROVIDER.lower()
 
-    if (provider == "gemini" or provider == "auto") and gemini_key:
+    if (provider == "nvidia" or provider == "auto") and nvidia_key:
+        try:
+            print("Calling NVIDIA NIM Vision API (Llama 3.2 11B Vision)...")
+            raw_data = diagnose_with_nvidia(target_image_path, nvidia_key)
+        except Exception as e:
+            print(f"NVIDIA API failed: {e}")
+
+    if not raw_data and (provider == "gemini" or provider == "auto") and gemini_key:
         try:
             print("Calling Gemini Flash Vision API...")
             raw_data = diagnose_with_gemini(target_image_path, gemini_key)
@@ -229,7 +266,30 @@ def answer_repair_chat(chat_req: ChatRequest) -> str:
             "Please do not attempt internal disassembly. We strongly recommend contacting authorized brand support or a licensed technician."
         )
 
-    # Gemini LLM Chat Call
+    # NVIDIA LLM Chat Call
+    nvidia_key = settings.NVIDIA_API_KEY
+    if nvidia_key:
+        try:
+            import openai
+            client = openai.OpenAI(base_url="https://integrate.api.nvidia.com/v1", api_key=nvidia_key)
+            system_prompt = (
+                f"You are a helpful home appliance repair assistant. "
+                f"The user is repairing a {chat_req.appliance_type} with identified issue: '{chat_req.identified_issue}'. "
+                f"Provide concise, step-by-step practical advice. Keep answers under 150 words."
+            )
+            response = client.chat.completions.create(
+                model="meta/llama-3.2-11b-vision-instruct",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": last_user_msg}
+                ],
+                temperature=0.2
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            print(f"NVIDIA chat call failed: {e}")
+
+    # Gemini LLM Chat Call Fallback
     gemini_key = settings.GEMINI_API_KEY
     if gemini_key:
         try:

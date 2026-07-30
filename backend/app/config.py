@@ -36,6 +36,10 @@ class Settings:
         return os.getenv("OPENAI_API_KEY")
 
     @property
+    def NVIDIA_API_KEY(self) -> str | None:
+        return os.getenv("NVIDIA_API_KEY")
+
+    @property
     def LLM_PROVIDER(self) -> str:
         return os.getenv("LLM_PROVIDER", "auto")
 
