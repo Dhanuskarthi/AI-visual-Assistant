@@ -18,7 +18,9 @@ import {
   ShieldCheck,
   Building2,
   Check,
-  Send
+  Send,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 
 interface DiagnosisResultProps {
@@ -42,6 +44,7 @@ export default function DiagnosisResult({
 
   // Brand & Model contact form state for Technical Support
   const [showContactForm, setShowContactForm] = useState<boolean>(false);
+  const [showDiyBrandDirectory, setShowDiyBrandDirectory] = useState<boolean>(true); // Default open for DIY safe as well!
   const [deviceBrand, setDeviceBrand] = useState<string>(diagnosis.brand_model_guess || "");
   const [deviceModel, setDeviceModel] = useState<string>("");
   const [contactPhone, setContactPhone] = useState<string>("");
@@ -360,6 +363,40 @@ export default function DiagnosisResult({
                 );
               })}
             </div>
+          </div>
+
+          {/* BRAND SUPPORT & LOCAL SERVICE DIRECTORY FOR DIY SAFE REPAIRS */}
+          <div className="bg-slate-800/40 border border-slate-700/80 rounded-2xl p-5 space-y-4">
+            <button
+              type="button"
+              onClick={() => setShowDiyBrandDirectory((prev) => !prev)}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <div className="flex items-center gap-2.5">
+                <PhoneCall className="w-5 h-5 text-amber-400" />
+                <div>
+                  <h4 className="font-bold text-white text-sm md:text-base">
+                    Need Professional Service or Spare Parts?
+                  </h4>
+                  <p className="text-xs text-slate-400">
+                    Official Indian brand support hotlines, service portals & nearby licensed repair centers
+                  </p>
+                </div>
+              </div>
+              <div className="p-2 bg-slate-800 rounded-xl border border-slate-700 text-slate-300">
+                {showDiyBrandDirectory ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </div>
+            </button>
+
+            {showDiyBrandDirectory && (
+              <div className="pt-2 animate-fade-in">
+                <BrandServiceDirectory
+                  brandName={diagnosis.brand_model_guess || diagnosis.appliance_type}
+                  modelNumber=""
+                  applianceType={diagnosis.appliance_type}
+                />
+              </div>
+            )}
           </div>
         </div>
       )}
