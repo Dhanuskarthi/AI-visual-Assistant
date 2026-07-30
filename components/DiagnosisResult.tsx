@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ApplianceDiagnosis } from "@/types/diagnosis";
 import SafetyBanner from "./SafetyBanner";
 import BrandServiceDirectory from "./BrandServiceDirectory";
+import VoiceGuidePlayer from "./VoiceGuidePlayer";
+import RepairChatbot from "./RepairChatbot";
 import {
   Wrench,
   Clock,
@@ -265,7 +267,6 @@ export default function DiagnosisResult({
             </form>
           )}
 
-          {/* Always display Brand Directory if already filled or if user wants direct access */}
           {showContactForm && (
             <div className="pt-4 border-t border-slate-800">
               <BrandServiceDirectory
@@ -317,7 +318,13 @@ export default function DiagnosisResult({
             )}
           </div>
 
-          {/* Ordered Repair Steps (Rendered ONLY if is_diy_safe is True) */}
+          {/* VOICE GUIDE ASSISTANT (Text-To-Speech) */}
+          <VoiceGuidePlayer
+            repairSteps={diagnosis.repair_steps || []}
+            applianceType={diagnosis.appliance_type}
+          />
+
+          {/* Ordered Repair Steps */}
           <div className="bg-slate-800/30 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-4">
             <h3 className="text-lg font-bold text-white flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
@@ -356,6 +363,13 @@ export default function DiagnosisResult({
           </div>
         </div>
       )}
+
+      {/* INTERACTIVE TROUBLESHOOTING CHATBOT */}
+      <RepairChatbot
+        applianceType={diagnosis.appliance_type}
+        identifiedIssue={diagnosis.identified_issue}
+        isDiySafe={isDiySafe}
+      />
 
       {/* FEEDBACK SECTION */}
       <div className="pt-6 border-t border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">

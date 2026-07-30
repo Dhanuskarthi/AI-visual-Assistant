@@ -60,21 +60,17 @@ class ApplianceDiagnosis(BaseModel):
 
     @model_validator(mode="after")
     def validate_safety_and_diy(self) -> "ApplianceDiagnosis":
-        # 1. is_diy_safe cannot be True if safety_risk_level is "high" or "call_a_professional"
         if self.safety_risk_level in ("high", "call_a_professional"):
             self.is_diy_safe = False
 
-        # 2. If is_diy_safe is False, repair_steps MUST be empty
         if not self.is_diy_safe:
             self.repair_steps = []
-            # Ensure requires_professional_reason is set
             if not self.requires_professional_reason or not self.requires_professional_reason.strip():
                 self.requires_professional_reason = self.safety_reasoning or (
                     "This repair involves high risk (electrical, gas, or structural plumbing) "
                     "and requires a licensed professional."
                 )
 
-        # 3. If error_code is present but appliance_type is unclear, force confidence_score < 0.6
         if self.error_code and self.error_code.strip():
             appliance_lower = (self.appliance_type or "").lower().strip()
             unclear_keywords = ["unknown", "unclear", "unidentified", "general", "other", "appliance", "something"]
@@ -110,3 +106,13 @@ class FeedbackSubmission(BaseModel):
     diagnosis_id: int
     feedback: Literal["worked", "didnt_work", "called_pro"]
     notes: Optional[str] = None
+
+class ChatMessage(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+
+class ChatRequest(BaseModel):
+    appliance_type: str
+    identified_issue: str
+    is_diy_safe: bool
+    messages: List[ChatMessage]

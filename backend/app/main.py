@@ -9,8 +9,14 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import engine, Base, get_db
-from app.schemas import ApplianceDiagnosis, DiagnosisCreateResponse, DiagnosisHistoryItem, FeedbackSubmission
-from app.llm_service import diagnose_appliance
+from app.schemas import (
+    ApplianceDiagnosis,
+    DiagnosisCreateResponse,
+    DiagnosisHistoryItem,
+    FeedbackSubmission,
+    ChatRequest
+)
+from app.llm_service import diagnose_appliance, answer_repair_chat
 import app.crud as crud
 
 Base.metadata.create_all(bind=engine)
@@ -120,3 +126,10 @@ def submit_feedback(data: FeedbackSubmission, db: Session = Depends(get_db)):
     if not updated:
         raise HTTPException(status_code=404, detail="Diagnosis record not found")
     return {"status": "success", "message": "Feedback submitted successfully"}
+
+@app.post("/chat")
+@app.post("/api/chat")
+def chat_endpoint(chat_req: ChatRequest):
+    """Interactive follow-up repair assistant endpoint."""
+    reply = answer_repair_chat(chat_req)
+    return {"reply": reply}

@@ -6,7 +6,7 @@ import cv2
 from PIL import Image
 
 from app.config import settings
-from app.schemas import ApplianceDiagnosis
+from app.schemas import ApplianceDiagnosis, ChatRequest, ChatMessage
 from app.safety import evaluate_safety
 
 EXACT_SYSTEM_PROMPT = """You are a careful home-appliance diagnostic assistant. Identify the appliance, any visible error code or fault, and describe what you observe factually. Do not guess a specific brand or model unless clearly visible in the image. Assess safety risk conservatively — if there is ANY doubt about electrical, gas, or structural water risk, classify it as requiring a professional rather than offering DIY steps. Only provide repair_steps for genuinely low-risk, cosmetic, or mechanical issues (e.g. clearing a lint filter, resetting a breaker with no gas/electrical damage visible, tightening a visible loose fitting). Return ONLY valid JSON matching this schema:
@@ -187,13 +187,6 @@ def fallback_smart_diagnosis(file_path: str, original_filename: str = "") -> dic
         }
 
 def diagnose_appliance(file_path: str, media_type: str, original_filename: str = "") -> ApplianceDiagnosis:
-    """
-    Main entrypoint:
-    1. If video, extract key image frame.
-    2. Invoke Gemini, OpenAI, or smart fallback vision model.
-    3. Validate schema with Pydantic v2.
-    4. Run hard-coded Python safety post-processor filter.
-    """
     target_image_path = file_path
     if media_type == "video" or file_path.lower().endswith((".mp4", ".mov", ".avi", ".webm")):
         target_image_path = extract_frame_from_video(file_path)
@@ -224,3 +217,50 @@ def diagnose_appliance(file_path: str, media_type: str, original_filename: str =
     diagnosis = ApplianceDiagnosis(**raw_data)
     final_diagnosis = evaluate_safety(diagnosis)
     return final_diagnosis
+
+def answer_repair_chat(chat_req: ChatRequest) -> str:
+    """Answers user follow-up questions for appliance troubleshooting."""
+    last_user_msg = chat_req.messages[-1].content if chat_req.messages else "How do I fix this?"
+    
+    if not chat_req.is_diy_safe:
+        return (
+            f"SAFETY NOTICE: The issue with your {chat_req.appliance_type} ({chat_req.identified_issue}) "
+            "has been classified as requiring a licensed professional due to high risk (electrical, gas, or plumbing). "
+            "Please do not attempt internal disassembly. We strongly recommend contacting authorized brand support or a licensed technician."
+        )
+
+    # Gemini LLM Chat Call
+    gemini_key = settings.GEMINI_API_KEY
+    if gemini_key:
+        try:
+            from google import genai
+            client = genai.Client(api_key=gemini_key)
+            system_prompt = (
+                f"You are a helpful home appliance repair assistant. "
+                f"The user is repairing a {chat_req.appliance_type} with identified issue: '{chat_req.identified_issue}'. "
+                f"Provide concise, step-by-step practical advice. Keep answers under 150 words."
+            )
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[system_prompt, f"User Question: {last_user_msg}"]
+            )
+            return response.text.strip()
+        except Exception as e:
+            print(f"Gemini chat failed: {e}")
+
+    # Smart Fallback Assistant
+    msg_lower = last_user_msg.lower()
+    if "where" in msg_lower or "location" in msg_lower or "find" in msg_lower:
+        return f"For most {chat_req.appliance_type} models, the filter or access panel is located at the front bottom door or inside the main chamber. Make sure to unplug the unit before opening access panels."
+    elif "tool" in msg_lower or "wrench" in msg_lower or "screwdriver" in msg_lower:
+        return "Standard repairs require a Phillips #2 screwdriver, a pair of adjustable pliers, and a towel to catch residual moisture."
+    elif "power" in msg_lower or "safety" in msg_lower or "electric" in msg_lower:
+        return "Always disconnect the main power plug from the wall outlet or switch off the dedicated circuit breaker before touching internal components."
+    else:
+        return (
+            f"To resolve {chat_req.identified_issue} on your {chat_req.appliance_type}: "
+            "1. Unplug the appliance.\n"
+            "2. Inspect visible seals and filters for debris.\n"
+            "3. Clean components using warm water and a soft lint-free cloth.\n"
+            "4. Reassemble and plug back in to perform a test run."
+        )
