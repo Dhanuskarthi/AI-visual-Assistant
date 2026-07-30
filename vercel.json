@@ -1,12 +1,30 @@
 {
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/server.py"
+      "src": "api/server.py",
+      "use": "@vercel/python"
     },
     {
-      "source": "/uploads/:path*",
-      "destination": "/api/server.py"
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "api/server.py"
+    },
+    {
+      "src": "/uploads/(.*)",
+      "dest": "api/server.py"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
 }

@@ -1,18 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: "/api/server.py",
-      },
-      {
-        source: "/uploads/:path*",
-        destination: "/api/server.py",
-      },
-    ];
-  },
+  reactStrictMode: true,
 };
 
 export default nextConfig;
