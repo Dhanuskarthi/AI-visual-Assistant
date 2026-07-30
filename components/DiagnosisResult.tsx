@@ -73,7 +73,7 @@ export default function DiagnosisResult({
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newTicketId = `FX-${Math.floor(100000 + Math.random() * 900000)}`;
+    const newTicketId = `FX-IN-${Math.floor(100000 + Math.random() * 900000)}`;
     setTicketId(newTicketId);
     setContactSubmitted(true);
     handleFeedback("called_pro");
@@ -163,7 +163,7 @@ export default function DiagnosisResult({
             </p>
 
             <div className="p-3 bg-red-950/30 border border-red-900/50 rounded-xl text-red-200 text-xs">
-              <strong>Emergency Precaution:</strong> If you smell gas or see active sparking, evacuate immediately and dial your local emergency service or gas utility company hotline.
+              <strong>Emergency Precaution:</strong> If you smell gas or see active sparking, evacuate immediately and dial your local emergency service or gas utility helpline (1906 for PNG/LPG).
             </div>
           </div>
 
@@ -176,7 +176,7 @@ export default function DiagnosisResult({
                 className="inline-flex items-center gap-2.5 px-6 py-4 rounded-2xl bg-gradient-to-r from-red-600 to-rose-700 text-white font-extrabold text-base shadow-xl shadow-red-950/80 hover:scale-[1.02] transition-transform"
               >
                 <PhoneCall className="w-5 h-5 animate-pulse" />
-                <span>Contact Technical Support & Find Services</span>
+                <span>Contact Technical Support & Find Services (India)</span>
               </button>
             </div>
           ) : contactSubmitted ? (
@@ -191,7 +191,7 @@ export default function DiagnosisResult({
               <div className="flex items-center justify-between pb-3 border-b border-slate-700">
                 <h3 className="font-bold text-white text-base flex items-center gap-2">
                   <PhoneCall className="w-4 h-4 text-rose-400" />
-                  <span>Technical Team & Brand Service Lookup</span>
+                  <span>Indian Technical Team & Brand Service Lookup</span>
                 </h3>
                 <span className="text-xs text-rose-300 font-semibold bg-rose-950/60 px-2.5 py-0.5 rounded border border-rose-800">
                   Device Specs Required
@@ -199,7 +199,7 @@ export default function DiagnosisResult({
               </div>
 
               <p className="text-xs text-slate-300">
-                Enter your device brand and model to automatically access official brand service websites, hotline numbers, and nearby geolocation repair services.
+                Enter your device brand and model to automatically access official Indian brand service portals, toll-free customer care hotlines, and nearby local service centers (Urban Company, Justdial, Google Maps).
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -212,8 +212,8 @@ export default function DiagnosisResult({
                     required
                     value={deviceBrand}
                     onChange={(e) => setDeviceBrand(e.target.value)}
-                    placeholder="e.g. Samsung, LG, Whirlpool, Rheem"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-rose-500"
+                    placeholder="e.g. Samsung, LG, Whirlpool, IFB, Godrej, Voltas, Haier"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-rose-500 placeholder:text-slate-500"
                   />
                 </div>
 
@@ -226,23 +226,23 @@ export default function DiagnosisResult({
                     required
                     value={deviceModel}
                     onChange={(e) => setDeviceModel(e.target.value)}
-                    placeholder="e.g. WM3900HWA or XE50T12EC"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-rose-500"
+                    placeholder="e.g. WA65A4002VS or Executive Plus"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-rose-500 placeholder:text-slate-500"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Contact Callback Phone Number <span className="text-rose-400">*</span>
+                  Contact Phone Number (India) <span className="text-rose-400">*</span>
                 </label>
                 <input
                   type="tel"
                   required
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
-                  placeholder="e.g. (555) 019-2834"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-rose-500"
+                  placeholder="e.g. +91 98765 43210"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-rose-500 placeholder:text-slate-500"
                 />
               </div>
 
@@ -259,7 +259,7 @@ export default function DiagnosisResult({
                   className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs md:text-sm flex items-center gap-2 shadow-lg shadow-rose-900/40"
                 >
                   <Send className="w-4 h-4" />
-                  <span>Get Brand Support & Nearby Services</span>
+                  <span>Get Indian Brand Support & Services</span>
                 </button>
               </div>
             </form>
