@@ -31,16 +31,17 @@ app.add_middleware(
 
 app.mount("/uploads", StaticFiles(directory=str(settings.UPLOAD_DIR)), name="uploads")
 
-@app.get("/")
-def read_root():
+@app.get("/api/health")
+@app.get("/health")
+def read_health():
     return {
         "status": "online",
         "app": settings.PROJECT_NAME,
         "docs": "/docs"
     }
 
-@app.post("/diagnose", response_model=DiagnosisCreateResponse)
-@app.post("/api/diagnose", response_model=DiagnosisCreateResponse)
+@app.post("/diagnose")
+@app.post("/api/diagnose")
 async def diagnose_file(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
@@ -87,8 +88,8 @@ async def diagnose_file(
         created_at=record.created_at.isoformat()
     )
 
-@app.get("/history", response_model=List[DiagnosisHistoryItem])
-@app.get("/api/history", response_model=List[DiagnosisHistoryItem])
+@app.get("/history")
+@app.get("/api/history")
 def get_history(db: Session = Depends(get_db)):
     records = crud.get_diagnosis_history(db)
     history_items = []

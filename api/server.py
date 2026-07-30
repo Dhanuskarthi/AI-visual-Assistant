@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-# Add backend directory to sys.path for Vercel serverless environment
 root_dir = Path(__file__).resolve().parent.parent
 backend_dir = root_dir / "backend"
 
