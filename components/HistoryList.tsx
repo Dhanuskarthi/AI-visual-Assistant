@@ -23,6 +23,8 @@ import {
   Filter
 } from "lucide-react";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 function formatRelativeTime(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
@@ -37,6 +39,7 @@ function formatRelativeTime(dateString: string): string {
 }
 
 export default function HistoryList() {
+  const { t } = useLanguage();
   const [history, setHistory] = useState<DiagnosisHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -146,9 +149,9 @@ export default function HistoryList() {
       <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 md:p-6 shadow-xl backdrop-blur-xl space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl md:text-2xl font-extrabold text-white">Your Past Scans</h2>
+            <h2 className="text-xl md:text-2xl font-extrabold text-white">{t("your_past_scans")}</h2>
             <p className="text-xs text-slate-400">
-              Review diagnostic history and tagged repair outcomes ({history.length} total scans)
+              ({history.length} {t("all_scans")})
             </p>
           </div>
 
@@ -174,7 +177,7 @@ export default function HistoryList() {
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              All Scans
+              {t("all_scans")}
             </button>
             <button
               type="button"
@@ -185,7 +188,7 @@ export default function HistoryList() {
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              DIY Safe
+              {t("diy_safe")}
             </button>
             <button
               type="button"
@@ -196,7 +199,7 @@ export default function HistoryList() {
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              Pro Required
+              {t("pro_required")}
             </button>
           </div>
 
@@ -221,7 +224,7 @@ export default function HistoryList() {
                 outcomeFilter === "worked" ? "bg-emerald-950 text-emerald-300 border border-emerald-800" : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              Fixed
+              {t("fixed")}
             </button>
             <button
               type="button"
@@ -230,7 +233,7 @@ export default function HistoryList() {
                 outcomeFilter === "didnt_work" ? "bg-rose-950 text-rose-300 border border-rose-800" : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              Broken
+              {t("broken")}
             </button>
             <button
               type="button"
@@ -239,7 +242,7 @@ export default function HistoryList() {
                 outcomeFilter === "called_pro" ? "bg-amber-950 text-amber-300 border border-amber-800" : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              Called Pro
+              {t("called_pro")}
             </button>
           </div>
 
@@ -250,7 +253,7 @@ export default function HistoryList() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search past scans…"
+              placeholder={t("search_past_scans")}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500 placeholder:text-slate-500 min-h-[44px]"
             />
           </div>

@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Wrench, ShieldCheck, History, Sparkles, Cpu, Activity } from "lucide-react";
+import { Wrench, History, Sparkles, Cpu, Activity } from "lucide-react";
 import LanguageToggle from "./LanguageToggle";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Header() {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/80 transition-all shadow-2xl">
@@ -28,7 +30,7 @@ export default function Header() {
               </span>
             </div>
             <p className="text-[11px] text-slate-400 hidden sm:block">
-              Universal Appliance, Electronics & Vehicle Safety Troubleshooter
+              {t("tagline")}
             </p>
           </div>
         </Link>
@@ -52,7 +54,7 @@ export default function Header() {
               }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Diagnose</span>
+              <span>{t("diagnose")}</span>
             </Link>
 
             <Link
@@ -64,7 +66,7 @@ export default function Header() {
               }`}
             >
               <History className="w-3.5 h-3.5" />
-              <span>History</span>
+              <span>{t("history")}</span>
             </Link>
           </nav>
         </div>

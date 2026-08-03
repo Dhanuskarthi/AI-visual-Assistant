@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { Camera, ShieldCheck, Wrench, X, Sparkles } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function OnboardingStrip() {
   const [isDismissed, setIsDismissed] = useState<boolean>(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const dismissed = localStorage.getItem("fixvision_onboarding_dismissed");
@@ -25,7 +27,7 @@ export default function OnboardingStrip() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs font-bold text-amber-400">
           <Sparkles className="w-4 h-4 text-amber-400" />
-          <span>Quick Guide — How FixVision Works</span>
+          <span>{t("onboarding_title")}</span>
         </div>
         <button
           type="button"
@@ -45,10 +47,10 @@ export default function OnboardingStrip() {
           </div>
           <div>
             <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-              <Camera className="w-3.5 h-3.5 text-rose-400" /> Snap or Upload
+              <Camera className="w-3.5 h-3.5 text-rose-400" /> {t("step_1_title")}
             </h4>
             <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
-              Take a clear picture or video of the issue, error code, or model tag.
+              {t("step_1_desc")}
             </p>
           </div>
         </div>
@@ -60,10 +62,10 @@ export default function OnboardingStrip() {
           </div>
           <div>
             <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> AI Scan & Safety Check
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> {t("step_2_title")}
             </h4>
             <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
-              Vision AI identifies the fault while safety rules screen for gas & electrical risks.
+              {t("step_2_desc")}
             </p>
           </div>
         </div>
@@ -75,10 +77,10 @@ export default function OnboardingStrip() {
           </div>
           <div>
             <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
-              <Wrench className="w-3.5 h-3.5 text-emerald-400" /> Get Repair Steps
+              <Wrench className="w-3.5 h-3.5 text-emerald-400" /> {t("step_3_title")}
             </h4>
             <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
-              Follow step-by-step DIY instructions or connect directly with certified brand pros.
+              {t("step_3_desc")}
             </p>
           </div>
         </div>

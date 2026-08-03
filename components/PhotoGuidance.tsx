@@ -1,11 +1,11 @@
-"use client";
-
 import { useState } from "react";
 import { Camera, Check, X, Home as HomeIcon, Smartphone, Car, Zap, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function PhotoGuidance() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeCategory, setActiveCategory] = useState<"appliance" | "mobile" | "vehicle" | "circuit_breaker">("appliance");
+  const { language, t } = useLanguage();
 
   const categories = [
     {

@@ -30,6 +30,8 @@ import {
   ShieldCheck
 } from "lucide-react";
 
+import { useLanguage } from "@/context/LanguageContext";
+
 interface DiagnosisResultProps {
   diagnosis: ApplianceDiagnosis;
   diagnosisId: number;
@@ -45,6 +47,7 @@ export default function DiagnosisResult({
   mediaType,
   onReset
 }: DiagnosisResultProps) {
+  const { language, t } = useLanguage();
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
   const [checkedTools, setCheckedTools] = useState<Record<number, boolean>>({});
   const [copiedStepIdx, setCopiedStepIdx] = useState<number | null>(null);
@@ -195,7 +198,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
             title="Print or Save as PDF"
           >
             <Printer className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Print / PDF</span>
+            <span>{t("print_pdf")}</span>
           </button>
 
           <button
@@ -205,7 +208,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
             title="Copy summary for technician"
           >
             <Share2 className="w-3.5 h-3.5 text-sky-400" />
-            <span>{copySuccess ? "Copied!" : "Share"}</span>
+            <span>{copySuccess ? "Copied!" : t("share")}</span>
           </button>
 
           <button
@@ -214,7 +217,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
             className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 text-white text-xs font-extrabold flex items-center gap-1.5 shadow-md transition-all hover:scale-105 min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Start Over</span>
+            <span>{t("start_over")}</span>
           </button>
         </div>
       </div>
@@ -225,7 +228,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
           <Info className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
           <div className="leading-relaxed">
             <strong className="font-bold text-amber-300">Low confidence scan: </strong>
-            <span>Visual features were partially unclear. Please treat this output as a initial hint rather than a definitive diagnosis. Consider taking a closer photo with better lighting.</span>
+            <span>{t("low_confidence_note")}</span>
           </div>
         </div>
       )}
@@ -234,7 +237,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-2 bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 md:p-5 space-y-1">
           <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-            Observed Fault
+            {t("observed_fault")}
           </span>
           <p className="text-base md:text-lg font-extrabold text-white leading-snug">
             {diagnosis.identified_issue}
@@ -244,7 +247,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
         {diagnosis.error_code && (
           <div className="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 md:p-5 flex flex-col justify-center">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
-              Error Code Displayed
+              {t("error_code_displayed")}
             </span>
             <span className="text-lg font-mono font-extrabold text-rose-400 bg-rose-950/60 px-3 py-1 rounded-xl border border-rose-800/60 inline-block w-fit shadow-md">
               {diagnosis.error_code}
@@ -392,9 +395,9 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
                   <Clock className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs text-slate-400 font-semibold block">Estimated Repair Time</span>
+                  <span className="text-xs text-slate-400 font-semibold block">{t("estimated_time")}</span>
                   <span className="text-sm font-bold text-white">
-                    ~{diagnosis.estimated_time_minutes} Minutes
+                    ~{diagnosis.estimated_time_minutes} Mins
                   </span>
                 </div>
               </div>
@@ -403,7 +406,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
             {diagnosis.required_tools && diagnosis.required_tools.length > 0 && (
               <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4 space-y-2">
                 <span className="text-xs text-slate-400 font-semibold flex items-center gap-1.5">
-                  <Wrench className="w-3.5 h-3.5 text-amber-400" /> Required Tools Checklist
+                  <Wrench className="w-3.5 h-3.5 text-amber-400" /> {t("required_tools")}
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {diagnosis.required_tools.map((tool, idx) => {
@@ -435,7 +438,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
               <div>
                 <h3 className="font-extrabold text-white text-sm md:text-base">
-                  Step-by-Step DIY Instructions ({totalSteps} steps)
+                  {t("step_by_step_diy")} ({totalSteps} {language === "ta" ? "படிகள்" : "steps"})
                 </h3>
               </div>
             </div>
@@ -445,7 +448,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
               onClick={() => setIsStepsExpanded((prev) => !prev)}
               className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition-colors min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
             >
-              <span>{isStepsExpanded ? "Hide Steps" : "Show Steps"}</span>
+              <span>{isStepsExpanded ? t("hide_steps") : t("show_steps")}</span>
               {isStepsExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
           </div>

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import PhotoGuidance from "./PhotoGuidance";
 import OnboardingStrip from "./OnboardingStrip";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface UploadSectionProps {
   onAnalyze: (file: File) => void;
@@ -32,6 +33,7 @@ interface UploadSectionProps {
 const MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024; // Server limit: 25MB (#2)
 
 export default function UploadSection({ onAnalyze, isLoading }: UploadSectionProps) {
+  const { language, t } = useLanguage();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isVideo, setIsVideo] = useState<boolean>(false);
@@ -208,10 +210,10 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
       {/* Header text */}
       <div className="text-center max-w-lg mx-auto space-y-1.5">
         <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-          Capture or Upload Media
+          {t("capture_upload_title")}
         </h2>
         <p className="text-slate-300 text-xs md:text-sm leading-relaxed">
-          Snap a clear picture or video of any error code, leaking hose, spark, or device component.
+          {t("capture_upload_subtitle")}
         </p>
       </div>
 
@@ -265,7 +267,7 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
             />
             <div className="absolute top-3 left-3 bg-slate-950/80 text-rose-400 border border-rose-500/40 text-xs font-mono font-bold px-3 py-1 rounded-full flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
-              <span>LIVE CAMERA STREAM</span>
+              <span>{t("live_camera_stream")}</span>
             </div>
           </div>
 
@@ -276,7 +278,7 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
               className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 text-white font-extrabold text-xs md:text-sm flex items-center gap-2 shadow-xl hover:scale-105 min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
             >
               <Camera className="w-4 h-4" />
-              <span>Capture Specimen Photo</span>
+              <span>{t("capture_specimen")}</span>
             </button>
 
             <button
@@ -284,7 +286,7 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
               onClick={stopCameraStream}
               className="px-4 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700 min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
             >
-              Cancel Camera
+              {t("cancel_camera")}
             </button>
           </div>
         </div>
@@ -326,13 +328,13 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
           </div>
 
           <p className="text-slate-100 font-extrabold text-base md:text-lg">
-            {isDragging ? "Release file to start diagnosis" : "Tap to snap photo or drop file here"}
+            {isDragging ? t("release_file") : t("drag_drop_text")}
           </p>
 
           {/* Visible Format & Size Hint (#2) */}
           <p className="text-slate-400 text-xs mt-1.5 flex items-center justify-center gap-1.5">
             <Info className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span>Supports high-res images & short video clips (PNG, JPG, MP4 up to <strong>25 MB</strong>)</span>
+            <span>{t("format_size_hint")}</span>
           </p>
 
           {/* Action buttons */}
@@ -343,7 +345,7 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
               className="px-5 py-3 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs md:text-sm font-extrabold flex items-center gap-2 shadow-xl shadow-rose-950/60 transition-all hover:scale-105 active:scale-95 min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
             >
               <Camera className="w-4 h-4" />
-              <span>Use Live Camera</span>
+              <span>{t("use_camera")}</span>
             </button>
 
             <button
@@ -352,7 +354,7 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
               className="px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs md:text-sm font-bold flex items-center gap-2 transition-all hover:scale-105 min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
             >
               <FileImage className="w-4 h-4 text-amber-400" />
-              <span>Browse Files</span>
+              <span>{t("browse_files")}</span>
             </button>
           </div>
         </div>
@@ -379,7 +381,7 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
               className="absolute top-3 right-3 bg-slate-950/90 hover:bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold backdrop-blur-md border border-slate-700 transition-colors z-30 flex items-center gap-1 min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
             >
               <X className="w-3.5 h-3.5" />
-              <span>Change Media</span>
+              <span>{t("change_media")}</span>
             </button>
           </div>
 
@@ -410,7 +412,7 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
               <div className="flex items-center justify-between text-xs font-bold">
                 <span className="text-rose-400 flex items-center gap-2">
                   <RefreshCw className="w-4 h-4 animate-spin text-amber-400 motion-reduce:animate-none" />
-                  <span>Checking your device…</span>
+                  <span>{t("checking_device")}</span>
                 </span>
                 <span className="text-slate-400 font-mono">Step {loadingStep + 1} of 4</span>
               </div>
@@ -439,12 +441,12 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
             {isLoading ? (
               <>
                 <RefreshCw className="w-5 h-5 animate-spin text-amber-300 motion-reduce:animate-none" />
-                <span>Checking your device…</span>
+                <span>{t("checking_device")}</span>
               </>
             ) : (
               <>
                 <Sparkles className="w-5 h-5 text-amber-300 animate-bounce motion-reduce:animate-none" />
-                <span>Run Diagnostic Scan</span>
+                <span>{t("run_diagnostic_scan")}</span>
               </>
             )}
           </button>

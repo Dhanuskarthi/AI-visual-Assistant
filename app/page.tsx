@@ -83,39 +83,39 @@ export default function Home() {
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-bold tracking-wide">
                 <ShieldCheck className="w-4 h-4 text-emerald-400 animate-pulse" />
-                <span>Universal AI Diagnostic & Safety Engine Active</span>
+                <span>{t("hero_badge")}</span>
               </div>
               <HowItWorksModal />
             </div>
 
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
-              Instant AI Vision Diagnostic <br className="hidden sm:inline" />
+              {t("hero_title_1")} <br className="hidden sm:inline" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-amber-300 to-emerald-400">
-                For All Devices & Vehicles
+                {t("hero_title_2")}
               </span>
             </h1>
 
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              Snap a picture or record a video. Our multimodal vision AI (NVIDIA Llama 3.2 Vision • Gemini Flash • GPT-4o) identifies faults, verifies safety rules, and generates instant step-by-step repair guides.
+              {t("hero_desc")}
             </p>
 
             {/* Device Category Badges */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-2">
               <div className="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-1.5 hover:border-emerald-500/50 transition-colors">
                 <HomeIcon className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Home Appliances</span>
+                <span>{t("cat_home")}</span>
               </div>
               <div className="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-1.5 hover:border-sky-500/50 transition-colors">
                 <Smartphone className="w-3.5 h-3.5 text-sky-400" />
-                <span>Mobiles & Laptops</span>
+                <span>{t("cat_mobile")}</span>
               </div>
               <div className="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-1.5 hover:border-amber-500/50 transition-colors">
                 <Car className="w-3.5 h-3.5 text-amber-400" />
-                <span>Bikes & Cars</span>
+                <span>{t("cat_vehicle")}</span>
               </div>
               <div className="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-1.5 hover:border-purple-500/50 transition-colors">
                 <Zap className="w-3.5 h-3.5 text-purple-400" />
-                <span>Power Systems</span>
+                <span>{t("cat_power")}</span>
               </div>
             </div>
           </div>
@@ -127,8 +127,8 @@ export default function Home() {
                 <ShieldAlert className="w-4 h-4" />
               </div>
               <div>
-                <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Safety Gate</span>
-                <span className="text-xs font-extrabold text-emerald-300">Hard-coded Filter</span>
+                <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">{t("hud_safety_gate")}</span>
+                <span className="text-xs font-extrabold text-emerald-300">{t("hud_hardcoded_filter")}</span>
               </div>
             </div>
 
@@ -137,8 +137,8 @@ export default function Home() {
                 <Eye className="w-4 h-4" />
               </div>
               <div>
-                <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Vision Engine</span>
-                <span className="text-xs font-extrabold text-sky-300">Multimodal 3.0</span>
+                <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">{t("hud_vision_engine")}</span>
+                <span className="text-xs font-extrabold text-sky-300">{t("hud_multimodal")}</span>
               </div>
             </div>
           </div>
