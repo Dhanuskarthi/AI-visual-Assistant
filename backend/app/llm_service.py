@@ -178,7 +178,7 @@ def diagnose_with_openai(image_path: str, api_key: str) -> dict:
             print(f"OpenAI API attempt {attempt + 1} failed: {e}")
     raise last_err
 
-def diagnose_appliance(file_path: str, media_type: str, original_filename: str = "") -> ApplianceDiagnosis:
+def diagnose_appliance(file_path: str, media_type: str, original_filename: str = "", language: str = "en") -> ApplianceDiagnosis:
     target_image_path = file_path
     is_temp_frame = False
     
@@ -263,6 +263,8 @@ def answer_repair_chat(chat_req: ChatRequest) -> str:
             "Please do not attempt internal disassembly. We strongly recommend contacting authorized brand support or a licensed technician/mechanic."
         )
 
+    lang_instruction = " Respond entirely in Tamil language (தமிழ்)." if (getattr(chat_req, "language", "en") == "ta") else ""
+
     # 1. NVIDIA LLM Chat Call
     nvidia_key = settings.NVIDIA_API_KEY
     if nvidia_key:
@@ -276,7 +278,7 @@ def answer_repair_chat(chat_req: ChatRequest) -> str:
             system_prompt = (
                 f"You are an expert repair assistant for home appliances, electronics, laptops, mobiles, and vehicles. "
                 f"The user is repairing a {chat_req.appliance_type} with identified issue: '{chat_req.identified_issue}'. "
-                f"Provide concise, step-by-step practical advice. Keep answers under 150 words."
+                f"Provide concise, step-by-step practical advice. Keep answers under 150 words.{lang_instruction}"
             )
             response = client.chat.completions.create(
                 model="meta/llama-3.2-11b-vision-instruct",
@@ -299,7 +301,7 @@ def answer_repair_chat(chat_req: ChatRequest) -> str:
             system_prompt = (
                 f"You are an expert repair assistant for home appliances, electronics, laptops, mobiles, and vehicles. "
                 f"The user is repairing a {chat_req.appliance_type} with identified issue: '{chat_req.identified_issue}'. "
-                f"Provide concise, step-by-step practical advice. Keep answers under 150 words."
+                f"Provide concise, step-by-step practical advice. Keep answers under 150 words.{lang_instruction}"
             )
             response = client.models.generate_content(
                 model="gemini-2.5-flash",
@@ -318,7 +320,7 @@ def answer_repair_chat(chat_req: ChatRequest) -> str:
             system_prompt = (
                 f"You are an expert repair assistant for home appliances, electronics, laptops, mobiles, and vehicles. "
                 f"The user is repairing a {chat_req.appliance_type} with identified issue: '{chat_req.identified_issue}'. "
-                f"Provide concise, step-by-step practical advice. Keep answers under 150 words."
+                f"Provide concise, step-by-step practical advice. Keep answers under 150 words.{lang_instruction}"
             )
             response = client.chat.completions.create(
                 model="gpt-4o-mini",

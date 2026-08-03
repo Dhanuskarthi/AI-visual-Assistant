@@ -121,6 +121,7 @@ class ChatRequest(BaseModel):
     identified_issue: str
     is_diy_safe: bool
     messages: List[ChatMessage]
+    language: Optional[str] = "en"
 
 class ContactRequest(BaseModel):
     brand: str = Field(..., description="Device brand name")

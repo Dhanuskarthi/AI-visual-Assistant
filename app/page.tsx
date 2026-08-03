@@ -5,6 +5,7 @@ import UploadSection from "@/components/UploadSection";
 import DiagnosisResult from "@/components/DiagnosisResult";
 import HowItWorksModal from "@/components/HowItWorksModal";
 import { DiagnosisCreateResponse } from "@/types/diagnosis";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   ShieldCheck,
   AlertOctagon,
@@ -23,6 +24,8 @@ export default function Home() {
   const [lastFile, setLastFile] = useState<File | null>(null);
   const [result, setResult] = useState<DiagnosisCreateResponse | null>(null);
 
+  const { language, t } = useLanguage();
+
   const handleAnalyze = async (file: File) => {
     setIsLoading(true);
     setError(null);
@@ -31,6 +34,7 @@ export default function Home() {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("language", language);
 
     try {
       const response = await fetch("/api/diagnose", {

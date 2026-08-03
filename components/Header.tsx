@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Wrench, ShieldCheck, History, Sparkles, Cpu, Activity } from "lucide-react";
+import LanguageToggle from "./LanguageToggle";
 
 export default function Header() {
   const pathname = usePathname();
@@ -32,11 +33,13 @@ export default function Header() {
           </div>
         </Link>
 
-        {/* Navigation & Status Badge */}
+        {/* Navigation, Language Switcher & Status Badge */}
         <div className="flex items-center gap-2 md:gap-3">
+          <LanguageToggle />
+
           <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-[11px] font-medium text-slate-300">
             <Cpu className="w-3.5 h-3.5 text-sky-400 animate-pulse" />
-            <span>NVIDIA • Gemini • OpenAI Active</span>
+            <span>NVIDIA • Gemini • OpenAI</span>
           </div>
 
           <nav className="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-2xl border border-slate-800">

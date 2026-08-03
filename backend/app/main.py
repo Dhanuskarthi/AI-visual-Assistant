@@ -59,6 +59,7 @@ def read_health():
 @app.post("/api/diagnose")
 async def diagnose_file(
     file: UploadFile = File(...),
+    language: str = Form("en"),
     db: Session = Depends(get_db)
 ):
     # 1. Read file content & check size (#5)
@@ -96,7 +97,8 @@ async def diagnose_file(
         diagnosis: ApplianceDiagnosis = diagnose_appliance(
             str(saved_path),
             media_type,
-            original_filename=file.filename
+            original_filename=file.filename,
+            language=language
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Diagnostic analysis failed: {str(e)}")

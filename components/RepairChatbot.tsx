@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { MessageSquare, Send, Bot, User, Sparkles, RefreshCw, ShieldAlert } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface RepairChatbotProps {
   applianceType: string;
@@ -33,6 +34,8 @@ export default function RepairChatbot({ applianceType, identifiedIssue, isDiySaf
     scrollToBottom();
   }, [messages, isLoading]);
 
+  const { language, t } = useLanguage();
+
   const handleSend = async (textToSend?: string) => {
     const query = (textToSend || input).trim();
     if (!query || isLoading) return;
@@ -56,7 +59,8 @@ export default function RepairChatbot({ applianceType, identifiedIssue, isDiySaf
           appliance_type: applianceType,
           identified_issue: identifiedIssue,
           is_diy_safe: isDiySafe,
-          messages: newMessages
+          messages: newMessages,
+          language: language
         })
       });
 
