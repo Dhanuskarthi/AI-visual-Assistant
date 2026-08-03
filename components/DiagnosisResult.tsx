@@ -6,6 +6,7 @@ import SafetyBanner from "./SafetyBanner";
 import BrandServiceDirectory from "./BrandServiceDirectory";
 import VoiceGuidePlayer from "./VoiceGuidePlayer";
 import RepairChatbot from "./RepairChatbot";
+import StatusPill from "./StatusPill";
 import {
   Wrench,
   Clock,
@@ -15,7 +16,6 @@ import {
   Tag,
   ThumbsUp,
   ThumbsDown,
-  ShieldCheck,
   Building2,
   Check,
   Send,
@@ -24,9 +24,10 @@ import {
   Activity,
   Printer,
   Share2,
-  Cpu,
-  Sparkles,
-  Info
+  Copy,
+  RotateCcw,
+  Info,
+  ShieldCheck
 } from "lucide-react";
 
 interface DiagnosisResultProps {
@@ -45,14 +46,17 @@ export default function DiagnosisResult({
   onReset
 }: DiagnosisResultProps) {
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
+  const [checkedTools, setCheckedTools] = useState<Record<number, boolean>>({});
+  const [copiedStepIdx, setCopiedStepIdx] = useState<number | null>(null);
+
   const [feedbackStatus, setFeedbackStatus] = useState<string | null>(null);
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState<boolean>(false);
 
-  // Progressive Disclosure: show fault & safety verdict first, toggle steps
+  // Progressive Disclosure: default steps visible
   const [isStepsExpanded, setIsStepsExpanded] = useState<boolean>(true);
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
-  // Brand & Model contact form state for Technical Support
+  // Contact form state
   const [showContactForm, setShowContactForm] = useState<boolean>(false);
   const [showDiyBrandDirectory, setShowDiyBrandDirectory] = useState<boolean>(true);
   const [deviceBrand, setDeviceBrand] = useState<string>(diagnosis.brand_model_guess || "");
@@ -60,6 +64,7 @@ export default function DiagnosisResult({
   const [contactPhone, setContactPhone] = useState<string>("");
   const [contactSubmitted, setContactSubmitted] = useState<boolean>(false);
   const [ticketId, setTicketId] = useState<string>("");
+  const [contactError, setContactError] = useState<string | null>(null);
 
   const totalSteps = diagnosis.repair_steps ? diagnosis.repair_steps.length : 0;
   const completedCount = Object.values(completedSteps).filter(Boolean).length;
@@ -67,6 +72,16 @@ export default function DiagnosisResult({
 
   const toggleStep = (idx: number) => {
     setCompletedSteps((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  };
+
+  const toggleTool = (idx: number) => {
+    setCheckedTools((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  };
+
+  const copyStepText = (stepText: string, idx: number) => {
+    navigator.clipboard.writeText(stepText);
+    setCopiedStepIdx(idx);
+    setTimeout(() => setCopiedStepIdx(null), 2000);
   };
 
   const handleFeedback = async (feedbackType: "worked" | "didnt_work" | "called_pro") => {
@@ -89,8 +104,6 @@ export default function DiagnosisResult({
       setIsSubmittingFeedback(false);
     }
   };
-
-  const [contactError, setContactError] = useState<string | null>(null);
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,99 +133,17 @@ export default function DiagnosisResult({
     }
   };
 
-  // Export / Print PDF report function
+  // Export / Print PDF report (#5)
   const handleExportPDF = () => {
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>FixVision AI Diagnostic Report #${diagnosisId}</title>
-          <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 24px; color: #0f172a; max-width: 800px; margin: 0 auto; }
-            .header { border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 20px; }
-            .badge { display: inline-block; padding: 4px 12px; border-radius: 9999px; font-weight: bold; font-size: 12px; text-transform: uppercase; }
-            .safe { background-color: #d1fae5; color: #065f46; }
-            .unsafe { background-color: #fee2e2; color: #991b1b; }
-            .card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; background-color: #f8fafc; }
-            h1 { margin: 0 0 8px 0; font-size: 24px; color: #0f172a; }
-            h2 { font-size: 16px; margin-top: 0; color: #334155; }
-            ol { padding-left: 20px; line-height: 1.6; }
-            li { margin-bottom: 8px; }
-            .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; text-center: center; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>FixVision AI 3.0 Diagnostic Report</h1>
-            <p style="margin:0; font-size: 13px; color: #64748b;">Record ID #${diagnosisId} &bull; Generated ${new Date().toLocaleDateString()}</p>
-          </div>
-
-          <div style="margin-bottom: 16px;">
-            <span class="badge ${diagnosis.is_diy_safe ? "safe" : "unsafe"}">
-              ${diagnosis.is_diy_safe ? "DIY Safe Repair" : "Professional Required"}
-            </span>
-            <span style="font-size: 13px; font-weight: bold; margin-left: 12px;">
-              Confidence: ${Math.round(diagnosis.confidence_score * 100)}% &bull; Model: ${diagnosis.ai_model_used || "FixVision AI"}
-            </span>
-          </div>
-
-          <div class="card">
-            <h2>Target Device & Fault</h2>
-            <p><strong>Device Type:</strong> ${diagnosis.appliance_type}</p>
-            ${diagnosis.brand_model_guess ? `<p><strong>Brand / Model:</strong> ${diagnosis.brand_model_guess}</p>` : ""}
-            <p><strong>Identified Issue:</strong> ${diagnosis.identified_issue}</p>
-            ${diagnosis.error_code ? `<p><strong>Error Code:</strong> ${diagnosis.error_code}</p>` : ""}
-          </div>
-
-          <div class="card">
-            <h2>Safety Risk Evaluation</h2>
-            <p><strong>Risk Level:</strong> ${diagnosis.safety_risk_level.toUpperCase()}</p>
-            <p><strong>Safety Protocol:</strong> ${diagnosis.safety_reasoning}</p>
-          </div>
-
-          ${
-            diagnosis.is_diy_safe && diagnosis.repair_steps.length > 0
-              ? `
-          <div class="card">
-            <h2>Step-by-Step Repair Guide</h2>
-            ${diagnosis.required_tools.length > 0 ? `<p><strong>Required Tools:</strong> ${diagnosis.required_tools.join(", ")}</p>` : ""}
-            <ol>
-              ${diagnosis.repair_steps.map((step) => `<li>${step}</li>`).join("")}
-            </ol>
-          </div>
-          `
-              : `
-          <div class="card" style="background-color: #fff1f2; border-color: #fecdd3;">
-            <h2 style="color: #991b1b;">Licensed Professional Recommended</h2>
-            <p style="color: #991b1b;">${diagnosis.requires_professional_reason || diagnosis.safety_reasoning}</p>
-            <p><strong>Indian Emergency Helpline:</strong> 1906 (LPG/PNG Gas Safety) or Contact Authorized Brand Support.</p>
-          </div>
-          `
-          }
-
-          <div class="footer">
-            <p>This report is generated by FixVision AI 3.0. It provides automated diagnostic guidance, not certified engineering inspection advice.</p>
-          </div>
-          <script>
-            window.onload = function() { window.print(); }
-          </script>
-        </body>
-      </html>
-    `;
-
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+    window.print();
   };
 
-  // Copy share summary link function
+  // Copy share summary link
   const handleShareDiagnosis = () => {
     const summaryText = `FixVision AI Diagnosis for ${diagnosis.appliance_type}:
 Issue: ${diagnosis.identified_issue}
 Status: ${diagnosis.is_diy_safe ? "DIY Safe" : "Pro Technician Required"} (Confidence ${Math.round(diagnosis.confidence_score * 100)}%)
-Safety Note: ${diagnosis.safety_reasoning}`;
+Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
 
     navigator.clipboard.writeText(summaryText).then(() => {
       setCopySuccess(true);
@@ -221,45 +152,26 @@ Safety Note: ${diagnosis.safety_reasoning}`;
   };
 
   const isDiySafe = diagnosis.is_diy_safe;
-  const confPercent = Math.round(diagnosis.confidence_score * 100);
-
-  const getCertaintyLabel = (score: number) => {
-    if (score >= 80) return { label: "High Certainty", color: "text-emerald-400 border-emerald-500/40 bg-emerald-500/10" };
-    if (score >= 60) return { label: "Moderate Certainty", color: "text-amber-400 border-amber-500/40 bg-amber-500/10" };
-    return { label: "Tentative Analysis", color: "text-rose-400 border-rose-500/40 bg-rose-500/10" };
-  };
-
-  const certaintyInfo = getCertaintyLabel(confPercent);
+  const isLowConfidence = diagnosis.confidence_score < 0.6; // #4
 
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 md:p-8 shadow-2xl space-y-6 backdrop-blur-2xl animate-fade-in">
-      {/* Header Info & Actions */}
+      {/* Header Info & Always Visible Start Over Button (#5) */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 ${
-                isDiySafe
-                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm shadow-emerald-950"
-                  : "bg-red-500/20 text-red-300 border border-red-500/40 shadow-sm shadow-red-950"
-              }`}
-            >
-              {isDiySafe ? (
-                <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> DIY Safe Repair
-                </>
-              ) : (
-                <>
-                  <AlertTriangle className="w-3.5 h-3.5 text-rose-400 animate-pulse" /> Professional Required
-                </>
-              )}
-            </span>
+            {/* Status Pill for DIY vs Pro (#10) */}
+            {isDiySafe ? (
+              <StatusPill variant="diy_safe" />
+            ) : (
+              <StatusPill variant="pro_required" />
+            )}
 
-            {/* AI Model Transparency Badge */}
-            <span className="text-xs font-mono font-bold text-sky-300 bg-sky-950/80 px-3 py-0.5 rounded-full border border-sky-800 flex items-center gap-1.5">
-              <Cpu className="w-3.5 h-3.5 text-sky-400" />
-              <span>Model: {diagnosis.ai_model_used || "NVIDIA Llama 3.2 Vision"}</span>
-            </span>
+            {/* Engine Pill (#4) */}
+            <StatusPill variant="engine" engineName={diagnosis.ai_model_used} />
+
+            {/* Confidence Pill */}
+            <StatusPill variant="confidence" score={diagnosis.confidence_score} />
           </div>
 
           <h2 className="text-2xl md:text-3xl font-extrabold text-white capitalize tracking-tight">
@@ -269,28 +181,28 @@ Safety Note: ${diagnosis.safety_reasoning}`;
           {diagnosis.brand_model_guess && (
             <p className="text-xs text-amber-400 font-semibold flex items-center gap-1.5">
               <Tag className="w-3.5 h-3.5 text-amber-400" />
-              <span>Model Ident: {diagnosis.brand_model_guess}</span>
+              <span>Model Tag: {diagnosis.brand_model_guess}</span>
             </p>
           )}
         </div>
 
-        {/* Action Buttons: Export PDF, Share & New Scan */}
+        {/* Action Buttons: Export PDF, Share & ALWAYS VISIBLE Start Over (#5) */}
         <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
           <button
             type="button"
             onClick={handleExportPDF}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition-all hover:scale-105"
-            title="Export diagnosis as printable PDF"
+            className="px-3.5 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition-all hover:scale-105 min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
+            title="Print or Save as PDF"
           >
             <Printer className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Export PDF</span>
+            <span>Print / PDF</span>
           </button>
 
           <button
             type="button"
             onClick={handleShareDiagnosis}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition-all hover:scale-105"
-            title="Copy summary link for technician"
+            className="px-3.5 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition-all hover:scale-105 min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
+            title="Copy summary for technician"
           >
             <Share2 className="w-3.5 h-3.5 text-sky-400" />
             <span>{copySuccess ? "Copied!" : "Share"}</span>
@@ -299,68 +211,50 @@ Safety Note: ${diagnosis.safety_reasoning}`;
           <button
             type="button"
             onClick={onReset}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 text-white text-xs font-extrabold shadow-md transition-all hover:scale-105"
+            className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 text-white text-xs font-extrabold flex items-center gap-1.5 shadow-md transition-all hover:scale-105 min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
           >
-            Scan Another
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Start Over</span>
           </button>
         </div>
       </div>
 
-      {/* Identified Issue & Confidence Score Card */}
+      {/* Low Confidence Prominent Note (#4) */}
+      {isLowConfidence && (
+        <div className="p-4 bg-amber-950/60 border border-amber-500/50 rounded-2xl text-amber-100 text-xs md:text-sm flex items-start gap-3 shadow-lg" role="note">
+          <Info className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <div className="leading-relaxed">
+            <strong className="font-bold text-amber-300">Low confidence scan: </strong>
+            <span>Visual features were partially unclear. Please treat this output as a initial hint rather than a definitive diagnosis. Consider taking a closer photo with better lighting.</span>
+          </div>
+        </div>
+      )}
+
+      {/* Identified Issue Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Identified Issue */}
         <div className="md:col-span-2 bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 md:p-5 space-y-1">
           <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-            Identified Fault Overview
+            Observed Fault
           </span>
           <p className="text-base md:text-lg font-extrabold text-white leading-snug">
             {diagnosis.identified_issue}
           </p>
         </div>
 
-        {/* Error Code & Confidence Meter */}
-        <div className="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 md:p-5 space-y-3 flex flex-col justify-between">
-          {diagnosis.error_code ? (
-            <div>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                Error Code Displayed
-              </span>
-              <span className="text-lg font-mono font-extrabold text-rose-400 bg-rose-950/60 px-3 py-1 rounded-xl border border-rose-800/60 inline-block shadow-md">
-                {diagnosis.error_code}
-              </span>
-            </div>
-          ) : (
-            <div>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                Visual Pattern Match
-              </span>
-              <span className="text-xs font-semibold text-slate-300">
-                Direct visual feature recognition
-              </span>
-            </div>
-          )}
-
-          {/* Confidence Meter */}
-          <div className="space-y-1.5 pt-1 border-t border-slate-700/60">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400 font-semibold">AI Certainty Level</span>
-              <span className={`px-2 py-0.5 rounded text-[11px] font-mono font-bold border ${certaintyInfo.color}`}>
-                {confPercent}% &bull; {certaintyInfo.label}
-              </span>
-            </div>
-            <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
-              <div
-                className="h-full bg-gradient-to-r from-rose-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-500"
-                style={{ width: `${confPercent}%` }}
-              />
-            </div>
+        {diagnosis.error_code && (
+          <div className="bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 md:p-5 flex flex-col justify-center">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">
+              Error Code Displayed
+            </span>
+            <span className="text-lg font-mono font-extrabold text-rose-400 bg-rose-950/60 px-3 py-1 rounded-xl border border-rose-800/60 inline-block w-fit shadow-md">
+              {diagnosis.error_code}
+            </span>
           </div>
-        </div>
+        )}
       </div>
 
       {/* CONDITIONAL RENDERING: DIY SAFE vs CALL PROFESSIONAL */}
       {!isDiySafe ? (
-        /* UNSAFE PATH: Defense-in-depth: Never render repair steps! */
         <div className="space-y-6">
           <SafetyBanner
             variant="high_risk_callout"
@@ -370,15 +264,11 @@ Safety Note: ${diagnosis.safety_reasoning}`;
           <div className="bg-slate-800/40 border border-slate-700 rounded-2xl p-5 text-slate-300 space-y-3">
             <h4 className="font-bold text-slate-200 text-sm md:text-base flex items-center gap-2">
               <Building2 className="w-4 h-4 text-amber-400" />
-              Safety Reasoning & Risk Guidelines
+              Safety Guidelines
             </h4>
             <p className="text-xs md:text-sm text-slate-300 leading-relaxed">
               {diagnosis.safety_reasoning}
             </p>
-
-            <div className="p-3.5 bg-red-950/50 border border-red-900/60 rounded-xl text-red-100 text-xs">
-              <strong>Emergency Precaution:</strong> If you smell fuel/gas or see active sparking, evacuate immediately and dial emergency service or gas helpline (1906 for PNG/LPG).
-            </div>
           </div>
 
           {/* Contact Form OR Directory View */}
@@ -387,10 +277,10 @@ Safety Note: ${diagnosis.safety_reasoning}`;
               <button
                 type="button"
                 onClick={() => setShowContactForm(true)}
-                className="inline-flex items-center gap-2.5 px-6 py-4 rounded-2xl bg-gradient-to-r from-red-600 to-rose-700 text-white font-extrabold text-base shadow-xl shadow-red-950/80 hover:scale-[1.02] transition-transform"
+                className="inline-flex items-center gap-2.5 px-6 py-4 rounded-2xl bg-gradient-to-r from-red-600 to-rose-700 text-white font-extrabold text-base shadow-xl shadow-red-950/80 hover:scale-[1.02] transition-transform min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
               >
                 <PhoneCall className="w-5 h-5 animate-pulse" />
-                <span>Contact Technical Support & Find Services (India)</span>
+                <span>Contact Technical Support & Find Services</span>
               </button>
             </div>
           ) : contactSubmitted ? (
@@ -405,42 +295,42 @@ Safety Note: ${diagnosis.safety_reasoning}`;
               <div className="flex items-center justify-between pb-3 border-b border-slate-700">
                 <h3 className="font-bold text-white text-base flex items-center gap-2">
                   <PhoneCall className="w-4 h-4 text-rose-400" />
-                  <span>Indian Technical Team & Brand Service Lookup</span>
+                  <span>Technical Support Request</span>
                 </h3>
                 <span className="text-xs text-rose-300 font-semibold bg-rose-950/60 px-2.5 py-0.5 rounded border border-rose-800">
-                  Specs Required
+                  Required
                 </span>
               </div>
 
-              <p className="text-xs text-slate-300">
-                Enter your device brand and model to automatically access official Indian brand service portals, toll-free customer care hotlines, and nearby local service centers (Urban Company, Justdial, Google Maps).
-              </p>
+              {contactError && (
+                <p className="text-xs text-rose-400 font-semibold">{contactError}</p>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Device Brand <span className="text-rose-400">*</span>
+                    Brand <span className="text-rose-400">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={deviceBrand}
                     onChange={(e) => setDeviceBrand(e.target.value)}
-                    placeholder="e.g. Samsung, Apple, Maruti Suzuki, LG, Whirlpool"
+                    placeholder="e.g. Samsung, Apple, LG, Maruti"
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-rose-500 placeholder:text-slate-500"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Device Model Number <span className="text-rose-400">*</span>
+                    Model Number <span className="text-rose-400">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={deviceModel}
                     onChange={(e) => setDeviceModel(e.target.value)}
-                    placeholder="e.g. iPhone 15, WA65A4002VS, Swift ZXi"
+                    placeholder="e.g. iPhone 15, WA65A4002VS"
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-rose-500 placeholder:text-slate-500"
                   />
                 </div>
@@ -448,7 +338,7 @@ Safety Note: ${diagnosis.safety_reasoning}`;
 
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Contact Phone Number (India) <span className="text-rose-400">*</span>
+                  Contact Phone Number <span className="text-rose-400">*</span>
                 </label>
                 <input
                   type="tel"
@@ -464,16 +354,16 @@ Safety Note: ${diagnosis.safety_reasoning}`;
                 <button
                   type="button"
                   onClick={() => setShowContactForm(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700"
+                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 min-h-[44px]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs md:text-sm flex items-center gap-2 shadow-lg shadow-rose-900/40"
+                  className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs md:text-sm flex items-center gap-2 shadow-lg shadow-rose-900/40 min-h-[44px]"
                 >
                   <Send className="w-4 h-4" />
-                  <span>Get Indian Brand Support & Services</span>
+                  <span>Submit Service Ticket</span>
                 </button>
               </div>
             </form>
@@ -490,12 +380,11 @@ Safety Note: ${diagnosis.safety_reasoning}`;
           )}
         </div>
       ) : (
-        /* DIY SAFE PATH with Progressive Disclosure */
+        /* DIY SAFE PATH */
         <div className="space-y-6">
-          {/* Persistent disclaimer banner */}
           <SafetyBanner variant="persistent_disclaimer" />
 
-          {/* Time & Tools summary */}
+          {/* Time & Required Tools Interactive Checklist (#5) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {diagnosis.estimated_time_minutes && (
               <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4 flex items-center gap-3">
@@ -512,108 +401,124 @@ Safety Note: ${diagnosis.safety_reasoning}`;
             )}
 
             {diagnosis.required_tools && diagnosis.required_tools.length > 0 && (
-              <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4">
-                <span className="text-xs text-slate-400 font-semibold block mb-2 flex items-center gap-1.5">
-                  <Wrench className="w-3.5 h-3.5 text-amber-400" /> Required Tools
+              <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4 space-y-2">
+                <span className="text-xs text-slate-400 font-semibold flex items-center gap-1.5">
+                  <Wrench className="w-3.5 h-3.5 text-amber-400" /> Required Tools Checklist
                 </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {diagnosis.required_tools.map((tool, idx) => (
-                    <span
-                      key={idx}
-                      className="text-xs bg-slate-800 text-slate-200 px-2.5 py-1 rounded-lg border border-slate-700 font-medium"
-                    >
-                      {tool}
-                    </span>
-                  ))}
+                <div className="flex flex-wrap gap-2">
+                  {diagnosis.required_tools.map((tool, idx) => {
+                    const isChecked = checkedTools[idx];
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => toggleTool(idx)}
+                        className={`text-xs px-3 py-1.5 rounded-xl border font-semibold flex items-center gap-1.5 transition-all min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none ${
+                          isChecked
+                            ? "bg-emerald-950/80 text-emerald-300 border-emerald-700 line-through"
+                            : "bg-slate-800 text-slate-200 border-slate-700 hover:border-slate-500"
+                        }`}
+                      >
+                        <Check className={`w-3.5 h-3.5 ${isChecked ? "text-emerald-400" : "opacity-30"}`} />
+                        <span>{tool}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
           </div>
 
-          {/* PROGRESSIVE DISCLOSURE TOGGLE BAR */}
+          {/* Progressive Disclosure Toggle Bar */}
           <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
               <div>
                 <h3 className="font-extrabold text-white text-sm md:text-base">
-                  Step-by-Step Repair Guide ({totalSteps} steps)
+                  Step-by-Step DIY Instructions ({totalSteps} steps)
                 </h3>
-                <p className="text-xs text-slate-400">
-                  {isStepsExpanded ? "Click to collapse instructions" : "Click to expand step-by-step DIY instructions"}
-                </p>
               </div>
             </div>
 
             <button
               type="button"
               onClick={() => setIsStepsExpanded((prev) => !prev)}
-              className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition-colors min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
             >
-              <span>{isStepsExpanded ? "Collapse Guide" : "Expand Guide"}</span>
+              <span>{isStepsExpanded ? "Hide Steps" : "Show Steps"}</span>
               {isStepsExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
           </div>
 
-          {/* EXPANDABLE REPAIR STEPS CONTENT */}
+          {/* EXPANDABLE REPAIR STEPS CONTENT (#5) */}
           {isStepsExpanded && (
             <div className="space-y-6 animate-fade-in">
-              {/* VOICE GUIDE ASSISTANT (Text-To-Speech) */}
               <VoiceGuidePlayer
                 repairSteps={diagnosis.repair_steps || []}
                 applianceType={diagnosis.appliance_type}
               />
 
-              {/* Step Progress Completion Bar */}
               {totalSteps > 0 && (
                 <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 space-y-2">
                   <div className="flex items-center justify-between text-xs font-bold text-slate-300">
                     <span className="flex items-center gap-1.5">
-                      <Activity className="w-3.5 h-3.5 text-emerald-400" /> Repair Completion Progress
+                      <Activity className="w-3.5 h-3.5 text-emerald-400" /> Progress
                     </span>
                     <span className="font-mono text-emerald-300">{completedCount}/{totalSteps} Steps ({progressPercent}%)</span>
                   </div>
 
                   <div className="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
                     <div
-                      className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-500 rounded-full shadow-[0_0_10px_#10b981]"
+                      className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-500 rounded-full"
                       style={{ width: `${progressPercent}%` }}
                     />
                   </div>
                 </div>
               )}
 
-              {/* Ordered Repair Steps */}
+              {/* Ordered Repair Steps with per-step Copy button (#5) */}
               <div className="bg-slate-800/30 border border-slate-800 rounded-2xl p-5 md:p-6 space-y-4">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                  <span>Actionable Instructions</span>
-                </h3>
-
                 <div className="space-y-3">
                   {diagnosis.repair_steps && diagnosis.repair_steps.map((step, idx) => {
                     const isDone = completedSteps[idx];
+                    const isCopied = copiedStepIdx === idx;
                     return (
                       <div
                         key={idx}
-                        onClick={() => toggleStep(idx)}
-                        className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
+                        className={`p-3.5 rounded-xl border transition-all flex items-start justify-between gap-3 ${
                           isDone
                             ? "bg-emerald-950/30 border-emerald-700/60 text-slate-400"
                             : "bg-slate-800/80 border-slate-700/80 hover:border-slate-600 text-slate-100"
                         }`}
                       >
                         <div
-                          className={`w-6 h-6 rounded-lg shrink-0 flex items-center justify-center font-bold text-xs mt-0.5 transition-colors ${
-                            isDone
-                              ? "bg-emerald-500 text-slate-950 shadow-[0_0_10px_#10b981]"
-                              : "bg-slate-700 text-slate-300 border border-slate-600"
-                          }`}
+                          onClick={() => toggleStep(idx)}
+                          className="flex items-start gap-3 cursor-pointer flex-1"
                         >
-                          {isDone ? <Check className="w-4 h-4 stroke-[3]" /> : idx + 1}
+                          <div
+                            className={`w-6 h-6 rounded-lg shrink-0 flex items-center justify-center font-bold text-xs mt-0.5 transition-colors ${
+                              isDone
+                                ? "bg-emerald-500 text-slate-950 shadow-[0_0_10px_#10b981]"
+                                : "bg-slate-700 text-slate-300 border border-slate-600"
+                            }`}
+                          >
+                            {isDone ? <Check className="w-4 h-4 stroke-[3]" /> : idx + 1}
+                          </div>
+                          <p className={`text-sm leading-relaxed ${isDone ? "line-through text-slate-400" : "font-medium"}`}>
+                            {step}
+                          </p>
                         </div>
-                        <p className={`text-sm leading-relaxed ${isDone ? "line-through text-slate-400" : "font-medium"}`}>
-                          {step}
-                        </p>
+
+                        {/* Per-step Copy Button (#5) */}
+                        <button
+                          type="button"
+                          onClick={() => copyStepText(step, idx)}
+                          className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700 transition-colors shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center focus:ring-2 focus:ring-rose-500 focus:outline-none"
+                          title="Copy step text"
+                          aria-label={`Copy step ${idx + 1}`}
+                        >
+                          {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
                       </div>
                     );
                   })}
@@ -622,12 +527,12 @@ Safety Note: ${diagnosis.safety_reasoning}`;
             </div>
           )}
 
-          {/* BRAND SUPPORT & LOCAL SERVICE DIRECTORY FOR DIY SAFE REPAIRS */}
+          {/* BRAND SUPPORT DIRECTORY */}
           <div className="bg-slate-800/40 border border-slate-700/80 rounded-2xl p-5 space-y-4">
             <button
               type="button"
               onClick={() => setShowDiyBrandDirectory((prev) => !prev)}
-              className="w-full flex items-center justify-between text-left"
+              className="w-full flex items-center justify-between text-left focus:ring-2 focus:ring-rose-500 focus:outline-none rounded-xl p-1"
             >
               <div className="flex items-center gap-2.5">
                 <PhoneCall className="w-5 h-5 text-amber-400" />
@@ -636,7 +541,7 @@ Safety Note: ${diagnosis.safety_reasoning}`;
                     Need Professional Service or Spare Parts?
                   </h4>
                   <p className="text-xs text-slate-400">
-                    Official Indian brand support hotlines, service portals & nearby licensed repair centers
+                    Official brand hotlines & nearby repair centers
                   </p>
                 </div>
               </div>
@@ -678,23 +583,26 @@ Safety Note: ${diagnosis.safety_reasoning}`;
         ) : (
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => handleFeedback("worked")}
               disabled={isSubmittingFeedback}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-emerald-950/60 hover:text-emerald-300 text-slate-300 border border-slate-700 text-xs font-medium flex items-center gap-1.5 transition-colors"
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-emerald-950/60 hover:text-emerald-300 text-slate-300 border border-slate-700 text-xs font-medium flex items-center gap-1.5 transition-colors min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
             >
               <ThumbsUp className="w-3.5 h-3.5 text-emerald-400" /> Worked
             </button>
             <button
+              type="button"
               onClick={() => handleFeedback("didnt_work")}
               disabled={isSubmittingFeedback}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-950/60 hover:text-rose-300 text-slate-300 border border-slate-700 text-xs font-medium flex items-center gap-1.5 transition-colors"
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-950/60 hover:text-rose-300 text-slate-300 border border-slate-700 text-xs font-medium flex items-center gap-1.5 transition-colors min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
             >
               <ThumbsDown className="w-3.5 h-3.5 text-rose-400" /> Didn't Work
             </button>
             <button
+              type="button"
               onClick={() => handleFeedback("called_pro")}
               disabled={isSubmittingFeedback}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-amber-950/60 hover:text-amber-300 text-slate-300 border border-slate-700 text-xs font-medium flex items-center gap-1.5 transition-colors"
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-amber-950/60 hover:text-amber-300 text-slate-300 border border-slate-700 text-xs font-medium flex items-center gap-1.5 transition-colors min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
             >
               <Building2 className="w-3.5 h-3.5 text-amber-400" /> Called Pro
             </button>

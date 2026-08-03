@@ -22,11 +22,6 @@
     50% { transform: translateY(-6px); }
   }
 
-  @keyframes soundWave {
-    0%, 100% { height: 4px; }
-    50% { height: 16px; }
-  }
-
   .animate-fade-in {
     animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
@@ -60,6 +55,35 @@
     background: rgba(30, 41, 59, 0.5);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* Reduced Motion Accessibility (#8) */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print Stylesheet for Save as PDF (#5) */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+  }
+  header, nav, button, form, .no-print {
+    display: none !important;
+  }
+  .bg-slate-900\/90, .bg-slate-950, .bg-slate-900 {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+  .text-white, .text-slate-100, .text-slate-200, .text-slate-300 {
+    color: #0f172a !important;
   }
 }
 

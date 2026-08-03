@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, Send, Bot, User, Sparkles, RefreshCw } from "lucide-react";
+import { MessageSquare, Send, Bot, User, Sparkles, RefreshCw, ShieldAlert } from "lucide-react";
 
 interface RepairChatbotProps {
   applianceType: string;
@@ -34,8 +34,14 @@ export default function RepairChatbot({ applianceType, identifiedIssue, isDiySaf
   }, [messages, isLoading]);
 
   const handleSend = async (textToSend?: string) => {
-    const query = textToSend || input.trim();
+    const query = (textToSend || input).trim();
     if (!query || isLoading) return;
+
+    // Duplicate send guard (#6)
+    const lastUserMessage = messages.filter((m) => m.role === "user").slice(-1)[0]?.content;
+    if (lastUserMessage && lastUserMessage.toLowerCase() === query.toLowerCase() && isLoading) {
+      return;
+    }
 
     const newMessages: Message[] = [...messages, { role: "user", content: query }];
     setMessages(newMessages);
@@ -62,13 +68,28 @@ export default function RepairChatbot({ applianceType, identifiedIssue, isDiySaf
         ...prev,
         {
           role: "assistant",
-          content: "Always ensure the appliance is completely unplugged before touching internal components. What specific step can I clarify?"
+          content: "Safety Precaution: Ensure the appliance or engine ignition is completely powered off before inspecting any components. What specific step can I clarify for you?"
         }
       ]);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Contextual quick prompt chips based on isDiySafe (#6)
+  const diyPrompts = [
+    "What if it doesn't work?",
+    "Where do I buy replacement parts?",
+    "What safety precautions should I take?"
+  ];
+
+  const proPrompts = [
+    "How do I stay safe until help arrives?",
+    "What emergency helpline should I call?",
+    "Should I turn off the main circuit breaker?"
+  ];
+
+  const quickPrompts = isDiySafe ? diyPrompts : proPrompts;
 
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 md:p-6 space-y-4 shadow-xl">
@@ -79,8 +100,8 @@ export default function RepairChatbot({ applianceType, identifiedIssue, isDiySaf
             <Bot className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="font-bold text-white text-sm md:text-base">AI Repair Chatbot</h3>
-            <p className="text-[11px] text-slate-400">Instant answers for {applianceType}</p>
+            <h3 className="font-bold text-white text-sm md:text-base">AI Repair Assistant</h3>
+            <p className="text-[11px] text-slate-400">Ask questions about {applianceType}</p>
           </div>
         </div>
 
@@ -120,38 +141,28 @@ export default function RepairChatbot({ applianceType, identifiedIssue, isDiySaf
           </div>
         ))}
 
+        {/* Typing indicator showing BEFORE first token (#6) */}
         {isLoading && (
-          <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-950/30 p-2.5 rounded-xl border border-amber-900/40 w-fit">
-            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-            <span>AI Assistant is typing...</span>
+          <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-950/30 p-2.5 rounded-xl border border-amber-900/40 w-fit animate-pulse motion-reduce:animate-none">
+            <RefreshCw className="w-3.5 h-3.5 animate-spin motion-reduce:animate-none" />
+            <span>AI Assistant is typing…</span>
           </div>
         )}
         <div ref={chatEndRef} />
       </div>
 
-      {/* Suggested Quick Prompts */}
+      {/* Contextual Quick Prompt Chips (#6) */}
       <div className="flex flex-wrap gap-1.5 pt-1">
-        <button
-          type="button"
-          onClick={() => handleSend("Where is the filter located?")}
-          className="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition-colors"
-        >
-          💡 Where is the filter?
-        </button>
-        <button
-          type="button"
-          onClick={() => handleSend("What safety precautions should I take?")}
-          className="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition-colors"
-        >
-          🛡️ Safety precautions?
-        </button>
-        <button
-          type="button"
-          onClick={() => handleSend("How to test the appliance after repair?")}
-          className="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition-colors"
-        >
-          ⚡ How to test after repair?
-        </button>
+        {quickPrompts.map((chip, idx) => (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => handleSend(chip)}
+            className="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700 transition-colors focus:ring-2 focus:ring-rose-500 focus:outline-none min-h-[44px]"
+          >
+            💡 {chip}
+          </button>
+        ))}
       </div>
 
       {/* Input Form */}
@@ -166,13 +177,13 @@ export default function RepairChatbot({ applianceType, identifiedIssue, isDiySaf
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={`Ask anything about repairing your ${applianceType}...`}
-          className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-rose-500 placeholder:text-slate-500"
+          placeholder={`Ask about repairing your ${applianceType}…`}
+          className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs md:text-sm text-white focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500 placeholder:text-slate-500 min-h-[44px]"
         />
         <button
           type="submit"
           disabled={!input.trim() || isLoading}
-          className="px-3.5 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-md disabled:opacity-40"
+          className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md disabled:opacity-40 min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
         >
           <Send className="w-3.5 h-3.5" />
           <span className="hidden md:inline">Send</span>
