@@ -4,19 +4,17 @@ import { useState } from "react";
 import UploadSection from "@/components/UploadSection";
 import DiagnosisResult from "@/components/DiagnosisResult";
 import HowItWorksModal from "@/components/HowItWorksModal";
-import { ApplianceDiagnosis, DiagnosisCreateResponse } from "@/types/diagnosis";
+import { DiagnosisCreateResponse } from "@/types/diagnosis";
 import {
   ShieldCheck,
   AlertOctagon,
-  Wrench,
   Smartphone,
   Car,
   Home as HomeIcon,
   Zap,
   Eye,
   ShieldAlert,
-  RefreshCw,
-  X
+  RefreshCw
 } from "lucide-react";
 
 export default function Home() {

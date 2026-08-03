@@ -20,6 +20,14 @@
       "dest": "api/server.py"
     },
     {
+      "src": "/docs",
+      "dest": "api/server.py"
+    },
+    {
+      "src": "/openapi.json",
+      "dest": "api/server.py"
+    },
+    {
       "handle": "filesystem"
     },
     {

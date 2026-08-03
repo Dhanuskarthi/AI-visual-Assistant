@@ -90,12 +90,34 @@ export default function DiagnosisResult({
     }
   };
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const [contactError, setContactError] = useState<string | null>(null);
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newTicketId = `FX-IN-${Math.floor(100000 + Math.random() * 900000)}`;
-    setTicketId(newTicketId);
-    setContactSubmitted(true);
-    handleFeedback("called_pro");
+    setContactError(null);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brand: deviceBrand,
+          model: deviceModel,
+          phone: contactPhone,
+          appliance_type: diagnosis.appliance_type,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to submit service request. Please try again.");
+      }
+
+      const data = await res.json();
+      setTicketId(data.ticket_id || `FX-IN-${Math.floor(100000 + Math.random() * 900000)}`);
+      setContactSubmitted(true);
+      handleFeedback("called_pro");
+    } catch (err: any) {
+      setContactError(err.message || "Failed to log service ticket.");
+    }
   };
 
   // Export / Print PDF report function

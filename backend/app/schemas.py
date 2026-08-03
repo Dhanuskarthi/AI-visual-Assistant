@@ -121,3 +121,14 @@ class ChatRequest(BaseModel):
     identified_issue: str
     is_diy_safe: bool
     messages: List[ChatMessage]
+
+class ContactRequest(BaseModel):
+    brand: str = Field(..., description="Device brand name")
+    model: str = Field(..., description="Device model number")
+    phone: str = Field(..., description="User contact phone number")
+    appliance_type: Optional[str] = Field(default=None, description="Appliance or device category")
+
+class ContactResponse(BaseModel):
+    status: str = "success"
+    ticket_id: str
+    message: str

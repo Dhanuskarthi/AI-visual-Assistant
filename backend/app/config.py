@@ -43,4 +43,11 @@ class Settings:
     def LLM_PROVIDER(self) -> str:
         return os.getenv("LLM_PROVIDER", "auto")
 
+    @property
+    def CORS_ORIGINS(self) -> list[str]:
+        raw = os.getenv("CORS_ORIGINS")
+        if raw and raw.strip():
+            return [o.strip() for o in raw.split(",") if o.strip()]
+        return ["http://localhost:3000", "http://127.0.0.1:3000", "https://ai-visual-assistant.vercel.app"]
+
 settings = Settings()

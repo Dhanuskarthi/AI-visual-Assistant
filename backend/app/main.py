@@ -6,6 +6,7 @@ from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
+from PIL import Image
 
 from app.config import settings
 from app.database import engine, Base, get_db
@@ -14,7 +15,9 @@ from app.schemas import (
     DiagnosisCreateResponse,
     DiagnosisHistoryItem,
     FeedbackSubmission,
-    ChatRequest
+    ChatRequest,
+    ContactRequest,
+    ContactResponse
 )
 from app.llm_service import diagnose_appliance, answer_repair_chat
 import app.crud as crud
@@ -27,15 +30,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# CORS Fix (#4): Explicit origins from settings
+cors_origins = settings.CORS_ORIGINS
+allow_all = "*" in cors_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=cors_origins if not allow_all else ["*"],
+    allow_credentials=not allow_all,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.mount("/uploads", StaticFiles(directory=str(settings.UPLOAD_DIR)), name="uploads")
+
+MAX_UPLOAD_SIZE = 25 * 1024 * 1024  # 25MB limit (#5)
 
 @app.get("/api/health")
 @app.get("/health")
@@ -52,11 +61,17 @@ async def diagnose_file(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    if not file.content_type:
-        mime = "image/jpeg"
-    else:
-        mime = file.content_type.lower()
-        
+    # 1. Read file content & check size (#5)
+    content = await file.read()
+    if len(content) > MAX_UPLOAD_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File size ({(len(content)/(1024*1024)):.1f}MB) exceeds the maximum limit of 25MB."
+        )
+    if len(content) == 0:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+
+    mime = (file.content_type or "image/jpeg").lower()
     is_video = "video" in mime or file.filename.lower().endswith((".mp4", ".mov", ".webm", ".avi"))
     media_type = "video" if is_video else "image"
 
@@ -65,8 +80,17 @@ async def diagnose_file(
     saved_path = settings.UPLOAD_DIR / filename
 
     with open(saved_path, "wb") as buffer:
-        content = await file.read()
         buffer.write(content)
+
+    # 2. Verify media validity (#5)
+    if not is_video:
+        try:
+            with Image.open(saved_path) as img:
+                img.verify()
+        except Exception:
+            if saved_path.exists():
+                saved_path.unlink()
+            raise HTTPException(status_code=400, detail="Unsupported or corrupt image media file.")
 
     try:
         diagnosis: ApplianceDiagnosis = diagnose_appliance(
@@ -134,3 +158,14 @@ def chat_endpoint(chat_req: ChatRequest):
     """Interactive follow-up repair assistant endpoint."""
     reply = answer_repair_chat(chat_req)
     return {"reply": reply}
+
+@app.post("/contact")
+@app.post("/api/contact")
+def contact_support_endpoint(req: ContactRequest):
+    """Service Ticket Request endpoint (#3)."""
+    ticket_id = f"FX-IN-{uuid.uuid4().hex[:6].upper()}"
+    return ContactResponse(
+        status="success",
+        ticket_id=ticket_id,
+        message=f"Service request logged for {req.brand} {req.model}. An authorized technician will contact {req.phone} shortly."
+    )

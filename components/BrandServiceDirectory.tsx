@@ -266,10 +266,7 @@ export default function BrandServiceDirectory({
       );
     }
   };
-
-  useEffect(() => {
-    handleGetLocation();
-  }, []);
+  // Geolocation is triggered ONLY when user clicks "Detect My Location" button (#7)
 
   const cleanLocationInput = manualCity.trim().slice(0, 30);
   const searchQuery = encodeURIComponent(
