@@ -459,7 +459,7 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
       {/* Quick Test Samples */}
       <div className="pt-4 border-t border-slate-800">
         <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 text-center">
-          Or try sample test captures across categories:
+          {t("sample_captures_header")}
         </p>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
@@ -469,9 +469,9 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
             className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/80 text-left text-xs font-medium text-slate-200 transition-all hover:scale-[1.02] group min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
           >
             <span className="block text-sky-400 font-bold mb-0.5 flex items-center gap-1.5 group-hover:text-sky-300">
-              <Smartphone className="w-3.5 h-3.5" /> Mobile Phone
+              <Smartphone className="w-3.5 h-3.5" /> {t("sample_mobile")}
             </span>
-            <span className="text-[11px] text-slate-400 block">Charging port & screen</span>
+            <span className="text-[11px] text-slate-400 block">{t("sample_mobile_sub")}</span>
           </button>
 
           <button
@@ -480,9 +480,9 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
             className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/80 text-left text-xs font-medium text-slate-200 transition-all hover:scale-[1.02] group min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
           >
             <span className="block text-amber-400 font-bold mb-0.5 flex items-center gap-1.5 group-hover:text-amber-300">
-              <Car className="w-3.5 h-3.5" /> Vehicle / Bike
+              <Car className="w-3.5 h-3.5" /> {t("sample_vehicle")}
             </span>
-            <span className="text-[11px] text-slate-400 block">12V Battery terminal</span>
+            <span className="text-[11px] text-slate-400 block">{t("sample_vehicle_sub")}</span>
           </button>
 
           <button
@@ -491,9 +491,9 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
             className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/80 text-left text-xs font-medium text-slate-200 transition-all hover:scale-[1.02] group min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
           >
             <span className="block text-emerald-400 font-bold mb-0.5 flex items-center gap-1.5 group-hover:text-emerald-300">
-              <HomeIcon className="w-3.5 h-3.5" /> Appliance
+              <HomeIcon className="w-3.5 h-3.5" /> {t("sample_appliance")}
             </span>
-            <span className="text-[11px] text-slate-400 block">Lint screen filter</span>
+            <span className="text-[11px] text-slate-400 block">{t("sample_appliance_sub")}</span>
           </button>
 
           <button
@@ -502,9 +502,9 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
             className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/80 text-left text-xs font-medium text-slate-200 transition-all hover:scale-[1.02] group min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
           >
             <span className="block text-rose-400 font-bold mb-0.5 flex items-center gap-1.5 group-hover:text-rose-300">
-              <Wrench className="w-3.5 h-3.5" /> Circuit Breaker
+              <Wrench className="w-3.5 h-3.5" /> {t("sample_breaker")}
             </span>
-            <span className="text-[11px] text-slate-400 block">Breaker panel switch</span>
+            <span className="text-[11px] text-slate-400 block">{t("sample_breaker_sub")}</span>
           </button>
         </div>
       </div>
