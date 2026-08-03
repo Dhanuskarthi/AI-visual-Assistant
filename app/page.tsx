@@ -3,18 +3,33 @@
 import { useState } from "react";
 import UploadSection from "@/components/UploadSection";
 import DiagnosisResult from "@/components/DiagnosisResult";
+import HowItWorksModal from "@/components/HowItWorksModal";
 import { ApplianceDiagnosis, DiagnosisCreateResponse } from "@/types/diagnosis";
-import { ShieldCheck, AlertOctagon, Wrench, Smartphone, Car, Cpu, Home as HomeIcon, Zap, CheckCircle2, Eye, ShieldAlert } from "lucide-react";
+import {
+  ShieldCheck,
+  AlertOctagon,
+  Wrench,
+  Smartphone,
+  Car,
+  Home as HomeIcon,
+  Zap,
+  Eye,
+  ShieldAlert,
+  RefreshCw,
+  X
+} from "lucide-react";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastFile, setLastFile] = useState<File | null>(null);
   const [result, setResult] = useState<DiagnosisCreateResponse | null>(null);
 
   const handleAnalyze = async (file: File) => {
     setIsLoading(true);
     setError(null);
     setResult(null);
+    setLastFile(file);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -27,7 +42,7 @@ export default function Home() {
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.detail || "Failed to analyze device image");
+        throw new Error(errData.detail || "Failed to analyze device image. Please check backend connection.");
       }
 
       const data: DiagnosisCreateResponse = await response.json();
@@ -39,9 +54,16 @@ export default function Home() {
     }
   };
 
+  const handleRetry = () => {
+    if (lastFile) {
+      handleAnalyze(lastFile);
+    }
+  };
+
   const handleReset = () => {
     setResult(null);
     setError(null);
+    setLastFile(null);
   };
 
   return (
@@ -53,12 +75,15 @@ export default function Home() {
       {/* Intro hero card */}
       <div className="relative bg-gradient-to-br from-slate-900/90 via-slate-900/95 to-slate-950/90 border border-slate-800/90 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-2xl overflow-hidden group">
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-rose-500/10 to-amber-500/0 rounded-full blur-2xl pointer-events-none" />
-        
+
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-3 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-bold tracking-wide">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 animate-pulse" />
-              <span>Universal AI Diagnostic & Safety Engine Active</span>
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-bold tracking-wide">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 animate-pulse" />
+                <span>Universal AI Diagnostic & Safety Engine Active</span>
+              </div>
+              <HowItWorksModal />
             </div>
 
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
@@ -118,13 +143,34 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Error Alert */}
+      {/* API Error Alert with User-Friendly Retry */}
       {error && (
-        <div className="p-4 bg-red-950/90 border border-red-800 rounded-2xl text-red-200 text-xs md:text-sm flex items-start gap-3 shadow-xl animate-fade-in">
-          <AlertOctagon className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-          <div>
-            <strong className="font-bold text-red-300">Diagnosis Error: </strong>
-            <span>{error}</span>
+        <div className="p-5 bg-red-950/95 border-2 border-red-800 rounded-3xl text-red-200 text-xs md:text-sm flex items-start justify-between gap-4 shadow-2xl animate-fade-in" role="alert">
+          <div className="flex items-start gap-3">
+            <AlertOctagon className="w-6 h-6 text-red-400 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <strong className="font-bold text-red-200 text-sm md:text-base block">Diagnosis Request Failed</strong>
+              <p className="text-slate-300 leading-relaxed">{error}</p>
+              <div className="pt-2 flex items-center gap-3">
+                {lastFile && (
+                  <button
+                    type="button"
+                    onClick={handleRetry}
+                    className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg transition-transform hover:scale-105"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Retry Diagnostic Scan</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setError(null)}
+                  className="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-medium border border-slate-700"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

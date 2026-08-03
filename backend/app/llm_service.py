@@ -252,6 +252,8 @@ def diagnose_appliance(file_path: str, media_type: str, original_filename: str =
         try:
             print("Calling NVIDIA NIM Vision API (Llama 3.2 11B Vision)...")
             raw_data = diagnose_with_nvidia(target_image_path, nvidia_key)
+            if raw_data:
+                raw_data["ai_model_used"] = "NVIDIA Llama 3.2 Vision"
         except Exception as e:
             print(f"NVIDIA API failed: {e}")
 
@@ -259,6 +261,8 @@ def diagnose_appliance(file_path: str, media_type: str, original_filename: str =
         try:
             print("Calling Gemini Flash Vision API...")
             raw_data = diagnose_with_gemini(target_image_path, gemini_key)
+            if raw_data:
+                raw_data["ai_model_used"] = "Gemini 2.5 Flash Vision"
         except Exception as e:
             print(f"Gemini API failed: {e}")
 
@@ -266,12 +270,16 @@ def diagnose_appliance(file_path: str, media_type: str, original_filename: str =
         try:
             print("Calling OpenAI GPT-4o-mini Vision API...")
             raw_data = diagnose_with_openai(target_image_path, openai_key)
+            if raw_data:
+                raw_data["ai_model_used"] = "OpenAI GPT-4o-mini Vision"
         except Exception as e:
             print(f"OpenAI API failed: {e}")
 
     if not raw_data:
         print("Using smart diagnostic fallback engine...")
         raw_data = fallback_smart_diagnosis(file_path, original_filename)
+        if raw_data and "ai_model_used" not in raw_data:
+            raw_data["ai_model_used"] = "FixVision Smart Vision Engine"
 
     diagnosis = ApplianceDiagnosis(**raw_data)
     final_diagnosis = evaluate_safety(diagnosis)

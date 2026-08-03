@@ -22,6 +22,7 @@ class DiagnosisRecord(Base):
     repair_steps_json = Column(Text, nullable=False)    # JSON string array
     estimated_time_minutes = Column(Integer, nullable=True)
     requires_professional_reason = Column(Text, nullable=True)
+    ai_model_used = Column(String, nullable=True)
     
     feedback = Column(String, nullable=True)  # "worked", "didnt_work", "called_pro"
     feedback_notes = Column(Text, nullable=True)

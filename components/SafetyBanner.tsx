@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, ShieldCheck, Flame, Zap } from "lucide-react";
+import { AlertTriangle, ShieldCheck, Flame, Zap, PhoneCall, ShieldAlert, AlertOctagon } from "lucide-react";
 
 interface SafetyBannerProps {
   variant?: "persistent_disclaimer" | "high_risk_callout";
@@ -10,26 +10,50 @@ interface SafetyBannerProps {
 export default function SafetyBanner({ variant = "persistent_disclaimer", reasoning }: SafetyBannerProps) {
   if (variant === "high_risk_callout") {
     return (
-      <div className="bg-red-950/90 border-2 border-red-600 rounded-2xl p-4 md:p-6 text-red-100 shadow-xl shadow-red-950/50 my-4 animate-fade-in">
-        <div className="flex items-start gap-3.5">
-          <div className="p-2.5 bg-red-600/30 rounded-xl border border-red-500/40 text-red-400 shrink-0">
-            <AlertTriangle className="w-6 h-6 animate-pulse" />
+      <div
+        className="bg-red-950/95 border-2 border-red-500 rounded-3xl p-5 md:p-6 text-red-100 shadow-2xl shadow-red-950/80 my-4 animate-fade-in space-y-4"
+        role="alert"
+        aria-live="assertive"
+      >
+        <div className="flex items-start gap-4">
+          <div className="p-3 bg-red-600/30 rounded-2xl border border-red-500/50 text-red-400 shrink-0 shadow-inner">
+            <AlertOctagon className="w-7 h-7 animate-pulse" />
           </div>
-          <div className="space-y-1.5">
-            <h3 className="font-bold text-lg text-red-200 tracking-tight flex items-center gap-2">
-              <span>CALL A LICENSED PROFESSIONAL</span>
-            </h3>
-            <p className="text-sm leading-relaxed text-red-200/90 font-medium">
-              {reasoning || "This issue involves severe risks (electrical, gas, or structural plumbing). Do NOT attempt DIY repairs."}
-            </p>
-            <div className="pt-2 flex flex-wrap gap-2 text-xs font-semibold text-red-300">
-              <span className="bg-red-900/60 border border-red-700 px-2.5 py-1 rounded-full flex items-center gap-1">
-                <Flame className="w-3.5 h-3.5 text-amber-400" /> Gas Hazard
+
+          <div className="space-y-2 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="px-3 py-1 rounded-full bg-red-600 text-white font-extrabold text-xs uppercase tracking-wider shadow-md">
+                SAFETY GATE BLOCKED
               </span>
-              <span className="bg-red-900/60 border border-red-700 px-2.5 py-1 rounded-full flex items-center gap-1">
-                <Zap className="w-3.5 h-3.5 text-yellow-400" /> High Voltage
+              <span className="text-xs font-bold text-red-300 font-mono">
+                LICENSED SPECIALIST REQUIRED
               </span>
             </div>
+
+            <h3 className="font-extrabold text-lg md:text-xl text-white tracking-tight">
+              DO NOT ATTEMPT DIY REPAIR
+            </h3>
+
+            <p className="text-xs md:text-sm leading-relaxed text-red-100 font-medium">
+              {reasoning || "High safety risk detected (electrical arcing, flammable gas leak, brake failure, or swollen battery). Disassembly poses severe risk of electrical shock, fire, explosion, or property damage."}
+            </p>
+          </div>
+        </div>
+
+        {/* Emergency Helplines & Badges */}
+        <div className="pt-3 border-t border-red-900/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex flex-wrap items-center gap-2 font-semibold">
+            <span className="bg-red-900/80 text-red-200 border border-red-700 px-3 py-1 rounded-xl flex items-center gap-1.5">
+              <Flame className="w-3.5 h-3.5 text-amber-400" /> Gas Leak / LPG Risk
+            </span>
+            <span className="bg-red-900/80 text-red-200 border border-red-700 px-3 py-1 rounded-xl flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-yellow-400" /> Mains High-Voltage
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 text-rose-200 font-bold bg-slate-950/80 px-3 py-1.5 rounded-xl border border-red-800">
+            <PhoneCall className="w-4 h-4 text-amber-400 animate-pulse" />
+            <span>Emergency Helpline: <a href="tel:1906" className="underline hover:text-white">1906 (Gas)</a> or Local Electrician</span>
           </div>
         </div>
       </div>
@@ -37,12 +61,16 @@ export default function SafetyBanner({ variant = "persistent_disclaimer", reason
   }
 
   return (
-    <div className="bg-amber-950/40 border border-amber-500/40 rounded-xl p-3.5 text-amber-200 text-xs md:text-sm shadow-md my-4 flex items-start gap-3">
-      <ShieldCheck className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-      <div className="leading-snug">
-        <strong className="font-semibold text-amber-300">Safety Notice: </strong>
+    <div
+      className="bg-amber-950/60 border border-amber-500/50 rounded-2xl p-4 text-amber-100 text-xs md:text-sm shadow-lg my-4 flex items-start gap-3.5"
+      role="region"
+      aria-label="AI Safety Disclaimer"
+    >
+      <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+      <div className="leading-relaxed">
+        <strong className="font-bold text-amber-300">FixVision AI Safety Disclaimer: </strong>
         <span>
-          This is AI-generated guidance, not a substitute for a licensed technician. Stop immediately if you smell gas or see sparking.
+          This diagnostic guidance is generated by AI vision models and serves as informational assistance, not certified inspection advice. Always disconnect device power, gas valves, and engine ignition before touching any components. Stop immediately if you detect gas odor or visible sparks.
         </span>
       </div>
     </div>

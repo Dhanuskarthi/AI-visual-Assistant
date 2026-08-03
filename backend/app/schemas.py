@@ -52,6 +52,10 @@ class ApplianceDiagnosis(BaseModel):
         default=None,
         description="Required explanation when is_diy_safe is False"
     )
+    ai_model_used: Optional[str] = Field(
+        default="FixVision AI Vision Engine",
+        description="The multimodal vision model that generated this diagnosis"
+    )
 
     @field_validator("confidence_score", mode="after")
     @classmethod
@@ -99,6 +103,7 @@ class DiagnosisHistoryItem(BaseModel):
     safety_risk_level: str
     is_diy_safe: bool
     requires_professional_reason: Optional[str]
+    ai_model_used: Optional[str] = "FixVision AI Vision Engine"
     created_at: str
     feedback: Optional[str] = None
 

@@ -13,6 +13,7 @@ export interface ApplianceDiagnosis {
   repair_steps: string[];
   estimated_time_minutes?: number | null;
   requires_professional_reason?: string | null;
+  ai_model_used?: string;
 }
 
 export interface DiagnosisCreateResponse {
@@ -35,6 +36,7 @@ export interface DiagnosisHistoryItem {
   safety_risk_level: SafetyRiskLevel;
   is_diy_safe: boolean;
   requires_professional_reason?: string | null;
+  ai_model_used?: string;
   created_at: string;
   feedback?: "worked" | "didnt_work" | "called_pro" | null;
 }

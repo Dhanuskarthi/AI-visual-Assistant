@@ -24,7 +24,8 @@ def create_diagnosis_record(
         required_tools_json=json.dumps(diagnosis.required_tools or []),
         repair_steps_json=json.dumps(diagnosis.repair_steps or []),
         estimated_time_minutes=diagnosis.estimated_time_minutes,
-        requires_professional_reason=diagnosis.requires_professional_reason
+        requires_professional_reason=diagnosis.requires_professional_reason,
+        ai_model_used=diagnosis.ai_model_used
     )
     db.add(record)
     db.commit()

@@ -113,6 +113,7 @@ def get_history(db: Session = Depends(get_db)):
                 safety_risk_level=r.safety_risk_level,
                 is_diy_safe=r.is_diy_safe,
                 requires_professional_reason=r.requires_professional_reason,
+                ai_model_used=r.ai_model_used or "FixVision AI Vision Engine",
                 created_at=r.created_at.isoformat(),
                 feedback=r.feedback
             )
