@@ -47,8 +47,7 @@ export default function RepairChatbot({ applianceType, identifiedIssue, isDiySaf
 
       playSpeech({
         text,
-        lang: language,
-        rate: 0.95,
+        rate: 0.92,
         onEnd: () => setSpeakingMsgIndex(null),
         onError: () => setSpeakingMsgIndex(null)
       });
