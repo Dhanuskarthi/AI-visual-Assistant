@@ -34,6 +34,7 @@ import {
 
 import { useLanguage } from "@/context/LanguageContext";
 import { getLocalizedText } from "@/lib/translationUtils";
+import { playSpeech, stopAllSpeech } from "@/lib/speechHelper";
 
 interface DiagnosisResultProps {
   diagnosis: ApplianceDiagnosis;
@@ -60,36 +61,23 @@ export default function DiagnosisResult({
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState<boolean>(false);
 
   const toggleSpeakSummary = () => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-
     if (isSpeakingSummary) {
-      window.speechSynthesis.cancel();
+      stopAllSpeech();
       setIsSpeakingSummary(false);
     } else {
-      window.speechSynthesis.cancel();
       setIsSpeakingSummary(true);
 
-      const summaryText = `${diagnosis.appliance_type}. ${diagnosis.identified_issue}. ${
-        diagnosis.safety_reasoning || ""
-      }`;
-      const utterance = new SpeechSynthesisUtterance(summaryText);
-      utterance.rate = 0.92;
+      const localizedIssue = getLocalizedText(diagnosis.identified_issue, language);
+      const localizedSafety = getLocalizedText(diagnosis.safety_reasoning || "", language);
+      const summaryText = `${diagnosis.appliance_type}. ${localizedIssue}. ${localizedSafety}`;
 
-      if (language === "ta") {
-        utterance.lang = "ta-IN";
-        const voices = window.speechSynthesis.getVoices();
-        const taVoice = voices.find(
-          (v) => v.lang.toLowerCase().startsWith("ta") || v.lang.toLowerCase().includes("ta")
-        );
-        if (taVoice) utterance.voice = taVoice;
-      } else {
-        utterance.lang = "en-US";
-      }
-
-      utterance.onend = () => setIsSpeakingSummary(false);
-      utterance.onerror = () => setIsSpeakingSummary(false);
-
-      window.speechSynthesis.speak(utterance);
+      playSpeech({
+        text: summaryText,
+        lang: language,
+        rate: 0.92,
+        onEnd: () => setIsSpeakingSummary(false),
+        onError: () => setIsSpeakingSummary(false)
+      });
     }
   };
 

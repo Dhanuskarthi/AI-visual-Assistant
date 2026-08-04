@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageSquare, Send, Bot, User, Sparkles, RefreshCw, ShieldAlert, Volume2, VolumeX } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { playSpeech, stopAllSpeech } from "@/lib/speechHelper";
 
 interface RepairChatbotProps {
   applianceType: string;
@@ -38,33 +39,19 @@ export default function RepairChatbot({ applianceType, identifiedIssue, isDiySaf
   const { language, t } = useLanguage();
 
   const toggleSpeakMessage = (index: number, text: string) => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-
     if (speakingMsgIndex === index) {
-      window.speechSynthesis.cancel();
+      stopAllSpeech();
       setSpeakingMsgIndex(null);
     } else {
-      window.speechSynthesis.cancel();
       setSpeakingMsgIndex(index);
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.95;
-
-      if (language === "ta") {
-        utterance.lang = "ta-IN";
-        const voices = window.speechSynthesis.getVoices();
-        const taVoice = voices.find(
-          (v) => v.lang.toLowerCase().startsWith("ta") || v.lang.toLowerCase().includes("ta")
-        );
-        if (taVoice) utterance.voice = taVoice;
-      } else {
-        utterance.lang = "en-US";
-      }
-
-      utterance.onend = () => setSpeakingMsgIndex(null);
-      utterance.onerror = () => setSpeakingMsgIndex(null);
-
-      window.speechSynthesis.speak(utterance);
+      playSpeech({
+        text,
+        lang: language,
+        rate: 0.95,
+        onEnd: () => setSpeakingMsgIndex(null),
+        onError: () => setSpeakingMsgIndex(null)
+      });
     }
   };
 

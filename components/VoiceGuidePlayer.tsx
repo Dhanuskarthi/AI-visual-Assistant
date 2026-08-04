@@ -5,6 +5,7 @@ import { Volume2, VolumeX, Pause, Play, Globe, Gauge } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { Language } from "@/lib/translations";
 import { getLocalizedText } from "@/lib/translationUtils";
+import { playSpeech, stopAllSpeech } from "@/lib/speechHelper";
 
 interface VoiceGuidePlayerProps {
   repairSteps: string[];
@@ -19,9 +20,23 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
   const [isPaused, setIsPaused] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isSupported, setIsSupported] = useState(false);
-  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
 
-  // Automatically sync voice language when global site language changes
+  useEffect(() => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      setIsSupported(true);
+      window.speechSynthesis.getVoices();
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          window.speechSynthesis.getVoices();
+        };
+      }
+    }
+    return () => {
+      stopAllSpeech();
+    };
+  }, []);
+
+  // Sync voice language when global site language changes
   useEffect(() => {
     setVoiceLang(globalLang);
     if (isPlaying) {
@@ -29,88 +44,39 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
     }
   }, [globalLang]);
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      setIsSupported(true);
-
-      const updateVoices = () => {
-        const voices = window.speechSynthesis.getVoices();
-        setAvailableVoices(voices);
-      };
-
-      updateVoices();
-      window.speechSynthesis.onvoiceschanged = updateVoices;
-
-      return () => {
-        if (window.speechSynthesis) {
-          window.speechSynthesis.cancel();
-        }
-      };
-    }
-  }, []);
-
-  const stopSpeech = () => {
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
+  const handleStop = () => {
+    stopAllSpeech();
     setIsPlaying(false);
     setIsPaused(false);
     setCurrentStepIndex(0);
   };
 
-  const speakNextStep = (index: number, activeLang: Language, activeRate: number) => {
+  const speakStep = (index: number, activeLang: Language, activeRate: number) => {
     if (index >= repairSteps.length) {
-      stopSpeech();
+      handleStop();
       return;
     }
 
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-
-    window.speechSynthesis.cancel(); // Cancel ongoing utterance before speaking next step
     setCurrentStepIndex(index);
-
     const stepContent = getLocalizedText(repairSteps[index], activeLang);
     const prefix = activeLang === "ta" ? `படி ${index + 1}: ` : `Step ${index + 1}: `;
     const textToSpeak = `${prefix}${stepContent}`;
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
 
-    utterance.rate = activeRate;
-    utterance.pitch = 1.0;
-
-    // Multilingual Read Aloud voice configuration
-    if (activeLang === "ta") {
-      utterance.lang = "ta-IN";
-      const taVoice = availableVoices.find(
-        (v) => v.lang.toLowerCase().includes("ta") || v.name.toLowerCase().includes("tamil")
-      );
-      if (taVoice) {
-        utterance.voice = taVoice;
+    playSpeech({
+      text: textToSpeak,
+      lang: activeLang,
+      rate: activeRate,
+      onEnd: () => {
+        if (index + 1 < repairSteps.length) {
+          speakStep(index + 1, activeLang, activeRate);
+        } else {
+          handleStop();
+        }
+      },
+      onError: () => {
+        handleStop();
       }
-    } else {
-      utterance.lang = "en-US";
-      const enVoice = availableVoices.find(
-        (v) => v.lang.toLowerCase().startsWith("en-us") || v.lang.toLowerCase().startsWith("en")
-      );
-      if (enVoice) {
-        utterance.voice = enVoice;
-      }
-    }
-
-    utterance.onend = () => {
-      if (index + 1 < repairSteps.length) {
-        speakNextStep(index + 1, activeLang, activeRate);
-      } else {
-        stopSpeech();
-      }
-    };
-
-    utterance.onerror = (e) => {
-      if (e.error !== "canceled") {
-        stopSpeech();
-      }
-    };
-
-    window.speechSynthesis.speak(utterance);
+    });
   };
 
   const handleTogglePlay = () => {
@@ -118,16 +84,20 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
 
     if (isPlaying) {
       if (isPaused) {
-        window.speechSynthesis.resume();
+        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+          window.speechSynthesis.resume();
+        }
         setIsPaused(false);
       } else {
-        window.speechSynthesis.pause();
+        if (typeof window !== "undefined" && "speechSynthesis" in window) {
+          window.speechSynthesis.pause();
+        }
         setIsPaused(true);
       }
     } else {
       setIsPlaying(true);
       setIsPaused(false);
-      speakNextStep(0, voiceLang, voiceRate);
+      speakStep(0, voiceLang, voiceRate);
     }
   };
 
@@ -135,14 +105,14 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
     setVoiceLang(newLang);
     if (isPlaying) {
       setIsPaused(false);
-      speakNextStep(currentStepIndex, newLang, voiceRate);
+      speakStep(currentStepIndex, newLang, voiceRate);
     }
   };
 
   const handleRateChange = (newRate: number) => {
     setVoiceRate(newRate);
     if (isPlaying && !isPaused) {
-      speakNextStep(currentStepIndex, voiceLang, newRate);
+      speakStep(currentStepIndex, voiceLang, newRate);
     }
   };
 
@@ -209,7 +179,7 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
           {isPlaying && (
             <button
               type="button"
-              onClick={stopSpeech}
+              onClick={handleStop}
               className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-medium min-h-[44px] min-w-[44px] flex items-center justify-center focus:ring-2 focus:ring-rose-500 focus:outline-none"
               title="Stop Voice Guide"
             >
