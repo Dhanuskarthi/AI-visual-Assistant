@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import VisualStoryCarousel from "@/components/VisualStoryCarousel";
 import {
   Camera,
   Cpu,
@@ -176,6 +177,11 @@ export default function IntroLandingPage() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* ================= 10-FRAME VISUAL STORY CAROUSEL ================= */}
+      <section className="max-w-5xl mx-auto px-4">
+        <VisualStoryCarousel />
       </section>
 
       {/* ================= STEP 3: FOUR-STEP ANIMATED SEQUENCE ================= */}
