@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Volume2, VolumeX, Pause, Play, Globe, Gauge } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 import { Language } from "@/lib/translations";
+import { getLocalizedText } from "@/lib/translationUtils";
 
 interface VoiceGuidePlayerProps {
   repairSteps: string[];
@@ -20,12 +21,13 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
   const [isSupported, setIsSupported] = useState(false);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
 
-  // Sync voiceLang with global language changes if user hasn't explicitly overridden it while playing
+  // Automatically sync voice language when global site language changes
   useEffect(() => {
-    if (!isPlaying) {
-      setVoiceLang(globalLang);
+    setVoiceLang(globalLang);
+    if (isPlaying) {
+      handleLanguageSwitch(globalLang);
     }
-  }, [globalLang, isPlaying]);
+  }, [globalLang]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -67,8 +69,9 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
     window.speechSynthesis.cancel(); // Cancel ongoing utterance before speaking next step
     setCurrentStepIndex(index);
 
+    const stepContent = getLocalizedText(repairSteps[index], activeLang);
     const prefix = activeLang === "ta" ? `படி ${index + 1}: ` : `Step ${index + 1}: `;
-    const textToSpeak = `${prefix}${repairSteps[index]}`;
+    const textToSpeak = `${prefix}${stepContent}`;
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
 
     utterance.rate = activeRate;
@@ -78,7 +81,7 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
     if (activeLang === "ta") {
       utterance.lang = "ta-IN";
       const taVoice = availableVoices.find(
-        (v) => v.lang.toLowerCase().startsWith("ta") || v.lang.toLowerCase().includes("ta")
+        (v) => v.lang.toLowerCase().includes("ta") || v.name.toLowerCase().includes("tamil")
       );
       if (taVoice) {
         utterance.voice = taVoice;
@@ -102,7 +105,6 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
     };
 
     utterance.onerror = (e) => {
-      // Ignore canceled errors triggered by manual stop/restart
       if (e.error !== "canceled") {
         stopSpeech();
       }

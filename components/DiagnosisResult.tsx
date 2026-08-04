@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 
 import { useLanguage } from "@/context/LanguageContext";
+import { getLocalizedText } from "@/lib/translationUtils";
 
 interface DiagnosisResultProps {
   diagnosis: ApplianceDiagnosis;
@@ -292,7 +293,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
             </button>
           </div>
           <p className="text-base md:text-lg font-extrabold text-white leading-snug pt-1">
-            {diagnosis.identified_issue}
+            {getLocalizedText(diagnosis.identified_issue, language)}
           </p>
         </div>
 
@@ -509,7 +510,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
           {isStepsExpanded && (
             <div className="space-y-6 animate-fade-in">
               <VoiceGuidePlayer
-                repairSteps={diagnosis.repair_steps || []}
+                repairSteps={(diagnosis.repair_steps || []).map((s) => getLocalizedText(s, language))}
                 applianceType={diagnosis.appliance_type}
               />
 
@@ -537,6 +538,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
                   {diagnosis.repair_steps && diagnosis.repair_steps.map((step, idx) => {
                     const isDone = completedSteps[idx];
                     const isCopied = copiedStepIdx === idx;
+                    const localizedStep = getLocalizedText(step, language);
                     return (
                       <div
                         key={idx}
@@ -560,7 +562,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
                             {isDone ? <Check className="w-4 h-4 stroke-[3]" /> : idx + 1}
                           </div>
                           <p className={`text-sm leading-relaxed ${isDone ? "line-through text-slate-400" : "font-medium"}`}>
-                            {step}
+                            {localizedStep}
                           </p>
                         </div>
 

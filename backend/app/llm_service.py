@@ -70,10 +70,19 @@ def encode_image_base64(image_path: str) -> str:
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode("utf-8")
 
-def diagnose_with_nvidia(image_path: str, api_key: str) -> dict:
+def get_system_prompt(language: str = "en") -> str:
+    if language == "ta":
+        return (
+            EXACT_SYSTEM_PROMPT
+            + "\n\nCRITICAL LANGUAGE INSTRUCTION: All human-readable text output (including 'appliance_type', 'identified_issue', 'safety_reasoning', 'required_tools', 'repair_steps', and 'requires_professional_reason') MUST BE WRITTEN ENTIRELY IN TAMIL (தமிழ்). Keep JSON keys in English."
+        )
+    return EXACT_SYSTEM_PROMPT
+
+def diagnose_with_nvidia(image_path: str, api_key: str, language: str = "en") -> dict:
     """Call NVIDIA NIM OpenAI-compatible Vision API with timeout and retry."""
     import openai
     base64_image = encode_image_base64(image_path)
+    system_prompt = get_system_prompt(language)
     
     last_err = None
     for attempt in range(2):
@@ -89,7 +98,7 @@ def diagnose_with_nvidia(image_path: str, api_key: str) -> dict:
                     {
                         "role": "user",
                         "content": [
-                            {"type": "text", "text": EXACT_SYSTEM_PROMPT},
+                            {"type": "text", "text": system_prompt},
                             {
                                 "type": "image_url",
                                 "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
@@ -107,8 +116,9 @@ def diagnose_with_nvidia(image_path: str, api_key: str) -> dict:
             print(f"NVIDIA API attempt {attempt + 1} failed: {e}")
     raise last_err
 
-def diagnose_with_gemini(image_path: str, api_key: str) -> dict:
+def diagnose_with_gemini(image_path: str, api_key: str, language: str = "en") -> dict:
     """Call Google Gemini Flash API with retry."""
+    system_prompt = get_system_prompt(language)
     last_err = None
     for attempt in range(2):
         try:
@@ -120,7 +130,7 @@ def diagnose_with_gemini(image_path: str, api_key: str) -> dict:
             
             response = client.models.generate_content(
                 model="gemini-2.5-flash",
-                contents=[pil_img, EXACT_SYSTEM_PROMPT],
+                contents=[pil_img, system_prompt],
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
                     temperature=0.2
@@ -135,7 +145,7 @@ def diagnose_with_gemini(image_path: str, api_key: str) -> dict:
                 model = genai.GenerativeModel("gemini-1.5-flash")
                 pil_img = Image.open(image_path)
                 
-                prompt = f"{EXACT_SYSTEM_PROMPT}\nAnalyze this image and return JSON strictly following the schema."
+                prompt = f"{system_prompt}\nAnalyze this image and return JSON strictly following the schema."
                 response = model.generate_content([prompt, pil_img])
                 
                 clean_text = response.text.replace("```json", "").replace("```", "").strip()
@@ -145,10 +155,11 @@ def diagnose_with_gemini(image_path: str, api_key: str) -> dict:
                 print(f"Gemini call error on attempt {attempt + 1}: {e2}")
     raise last_err
 
-def diagnose_with_openai(image_path: str, api_key: str) -> dict:
+def diagnose_with_openai(image_path: str, api_key: str, language: str = "en") -> dict:
     """Call OpenAI GPT-4o-mini vision API with timeout and retry."""
     import openai
     base64_image = encode_image_base64(image_path)
+    system_prompt = get_system_prompt(language)
     
     last_err = None
     for attempt in range(2):
@@ -160,7 +171,7 @@ def diagnose_with_openai(image_path: str, api_key: str) -> dict:
                     {
                         "role": "user",
                         "content": [
-                            {"type": "text", "text": EXACT_SYSTEM_PROMPT},
+                            {"type": "text", "text": system_prompt},
                             {
                                 "type": "image_url",
                                 "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
@@ -196,7 +207,7 @@ def diagnose_appliance(file_path: str, media_type: str, original_filename: str =
         if (provider == "nvidia" or provider == "auto") and nvidia_key:
             try:
                 print("Calling NVIDIA NIM Vision API (Llama 3.2 11B Vision)...")
-                raw_data = diagnose_with_nvidia(target_image_path, nvidia_key)
+                raw_data = diagnose_with_nvidia(target_image_path, nvidia_key, language=language)
                 if raw_data:
                     raw_data["ai_model_used"] = "NVIDIA Llama 3.2 Vision"
             except Exception as e:
@@ -206,7 +217,7 @@ def diagnose_appliance(file_path: str, media_type: str, original_filename: str =
         if not raw_data and (provider == "gemini" or provider == "auto") and gemini_key:
             try:
                 print("Calling Gemini Flash Vision API...")
-                raw_data = diagnose_with_gemini(target_image_path, gemini_key)
+                raw_data = diagnose_with_gemini(target_image_path, gemini_key, language=language)
                 if raw_data:
                     raw_data["ai_model_used"] = "Gemini 2.5 Flash Vision"
             except Exception as e:
@@ -216,7 +227,7 @@ def diagnose_appliance(file_path: str, media_type: str, original_filename: str =
         if not raw_data and (provider == "openai" or provider == "auto") and openai_key:
             try:
                 print("Calling OpenAI GPT-4o-mini Vision API...")
-                raw_data = diagnose_with_openai(target_image_path, openai_key)
+                raw_data = diagnose_with_openai(target_image_path, openai_key, language=language)
                 if raw_data:
                     raw_data["ai_model_used"] = "OpenAI GPT-4o-mini Vision"
             except Exception as e:
