@@ -41,9 +41,9 @@ export default function Header() {
 
           <nav className="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-2xl border border-slate-800">
             <Link
-              href="/"
+              href="/diagnose"
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                pathname === "/"
+                pathname === "/diagnose"
                   ? "bg-gradient-to-r from-indigo-600 via-rose-600 to-indigo-700 text-white shadow-md shadow-indigo-950/60"
                   : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
               }`}
