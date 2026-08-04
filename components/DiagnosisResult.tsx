@@ -73,7 +73,6 @@ export default function DiagnosisResult({
 
       playSpeech({
         text: summaryText,
-        lang: language,
         rate: 0.90,
         onEnd: () => setIsSpeakingSummary(false),
         onError: () => setIsSpeakingSummary(false)
@@ -498,7 +497,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
           {isStepsExpanded && (
             <div className="space-y-6 animate-fade-in">
               <VoiceGuidePlayer
-                repairSteps={(diagnosis.repair_steps || []).map((s) => getLocalizedText(s, language))}
+                repairSteps={diagnosis.repair_steps || []}
                 applianceType={diagnosis.appliance_type}
               />
 

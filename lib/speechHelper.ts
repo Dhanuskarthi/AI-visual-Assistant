@@ -1,16 +1,14 @@
-import { Language } from "./translations";
-
 export interface SpeakOptions {
   text: string;
-  lang?: Language;
   rate?: number;
   onEnd?: () => void;
   onError?: (err: any) => void;
 }
 
 let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
+let currentActiveUtterance: SpeechSynthesisUtterance | null = null;
 
-// Clean markdown, symbols, and formatting for clear TTS speech output
+// Clean markdown, symbols, and technical formatting for crystal clear TTS speech output
 export function cleanTextForSpeech(rawText: string): string {
   if (!rawText) return "";
   return rawText
@@ -64,6 +62,7 @@ export function stopAllSpeech() {
       clearInterval(keepAliveInterval);
       keepAliveInterval = null;
     }
+    currentActiveUtterance = null;
     try {
       window.speechSynthesis.cancel();
       window.speechSynthesis.resume();
@@ -73,7 +72,7 @@ export function stopAllSpeech() {
   }
 }
 
-export function playSpeech({ text, lang = "en", rate = 0.90, onEnd, onError }: SpeakOptions): SpeechSynthesisUtterance | null {
+export function playSpeech({ text, rate = 0.90, onEnd, onError }: SpeakOptions): SpeechSynthesisUtterance | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     if (onError) onError("Speech synthesis is not supported on this browser.");
     return null;
@@ -84,34 +83,26 @@ export function playSpeech({ text, lang = "en", rate = 0.90, onEnd, onError }: S
 
   const cleanedText = cleanTextForSpeech(text);
   const utterance = new SpeechSynthesisUtterance(cleanedText);
+
+  // PREVENT BROWSER GARBAGE COLLECTION CUTOFF (CHROME / SAFARI / EDGE BUG FIX)
+  currentActiveUtterance = utterance;
+  if (typeof window !== "undefined") {
+    (window as any).__currentSpeechUtterance = utterance;
+  }
+
+  // Dedicated English Voice configuration for crystal clear speech
+  utterance.lang = "en-US";
+  utterance.rate = rate; // Clear pacing for steps (0.90)
+  utterance.pitch = 1.0;
+
   const voices = window.speechSynthesis.getVoices();
-
-  if (lang === "ta") {
-    utterance.lang = "ta-IN";
-    utterance.rate = 0.88; // Clear Tamil pacing
-    utterance.pitch = 1.0;
-
-    const taVoice = voices.find(
-      (v) =>
-        v.lang.toLowerCase().startsWith("ta") ||
-        v.lang.toLowerCase().includes("ta") ||
-        v.name.toLowerCase().includes("tamil")
-    );
-    if (taVoice) {
-      utterance.voice = taVoice;
-    }
-  } else {
-    utterance.lang = "en-US";
-    utterance.rate = rate; // Clear English pacing (0.90)
-    utterance.pitch = 1.0;
-
-    const bestEnglishVoice = findBestEnglishVoice(voices);
-    if (bestEnglishVoice) {
-      utterance.voice = bestEnglishVoice;
-    }
+  const bestEnglishVoice = findBestEnglishVoice(voices);
+  if (bestEnglishVoice) {
+    utterance.voice = bestEnglishVoice;
   }
 
   utterance.onend = () => {
+    currentActiveUtterance = null;
     if (keepAliveInterval) {
       clearInterval(keepAliveInterval);
       keepAliveInterval = null;
@@ -120,6 +111,7 @@ export function playSpeech({ text, lang = "en", rate = 0.90, onEnd, onError }: S
   };
 
   utterance.onerror = (e: any) => {
+    currentActiveUtterance = null;
     if (keepAliveInterval) {
       clearInterval(keepAliveInterval);
       keepAliveInterval = null;
