@@ -15,7 +15,9 @@ import {
   Zap,
   Eye,
   ShieldAlert,
-  RefreshCw
+  RefreshCw,
+  Sparkles,
+  CheckCircle2
 } from "lucide-react";
 
 export default function Home() {
@@ -44,7 +46,7 @@ export default function Home() {
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.detail || "Failed to analyze device image. Please check backend connection.");
+        throw new Error(errData.detail || "Failed to analyze device image. Please check your backend connection.");
       }
 
       const data: DiagnosisCreateResponse = await response.json();
@@ -71,18 +73,18 @@ export default function Home() {
   return (
     <div className="relative space-y-8 pb-12">
       {/* Background Glow Effects */}
-      <div className="absolute top-10 left-1/4 w-96 h-96 bg-rose-600/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
-      <div className="absolute top-40 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+      <div className="absolute top-10 left-1/4 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+      <div className="absolute top-40 right-1/4 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
 
       {/* Intro hero card */}
-      <div className="relative bg-gradient-to-br from-slate-900/90 via-slate-900/95 to-slate-950/90 border border-slate-800/90 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-2xl overflow-hidden group">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-rose-500/10 to-amber-500/0 rounded-full blur-2xl pointer-events-none" />
+      <div className="relative bg-gradient-to-br from-slate-900/95 via-slate-900/90 to-indigo-950/40 border border-slate-800/90 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-2xl overflow-hidden group">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-indigo-500/10 via-rose-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-3 text-center lg:text-left">
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-bold tracking-wide">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 animate-pulse" />
+          <div className="space-y-3.5 text-center lg:text-left">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold tracking-wide">
+                <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
                 <span>{t("hero_badge")}</span>
               </div>
               <HowItWorksModal />
@@ -90,7 +92,7 @@ export default function Home() {
 
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
               {t("hero_title_1")} <br className="hidden sm:inline" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-amber-300 to-emerald-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-rose-400 to-amber-300">
                 {t("hero_title_2")}
               </span>
             </h1>
@@ -101,30 +103,30 @@ export default function Home() {
 
             {/* Device Category Badges */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-2">
-              <div className="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-1.5 hover:border-emerald-500/50 transition-colors">
-                <HomeIcon className="w-3.5 h-3.5 text-emerald-400" />
+              <div className="px-3.5 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-2 hover:border-emerald-500/50 transition-colors shadow-sm">
+                <HomeIcon className="w-4 h-4 text-emerald-400" />
                 <span>{t("cat_home")}</span>
               </div>
-              <div className="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-1.5 hover:border-sky-500/50 transition-colors">
-                <Smartphone className="w-3.5 h-3.5 text-sky-400" />
+              <div className="px-3.5 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-2 hover:border-sky-500/50 transition-colors shadow-sm">
+                <Smartphone className="w-4 h-4 text-sky-400" />
                 <span>{t("cat_mobile")}</span>
               </div>
-              <div className="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-1.5 hover:border-amber-500/50 transition-colors">
-                <Car className="w-3.5 h-3.5 text-amber-400" />
+              <div className="px-3.5 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-2 hover:border-amber-500/50 transition-colors shadow-sm">
+                <Car className="w-4 h-4 text-amber-400" />
                 <span>{t("cat_vehicle")}</span>
               </div>
-              <div className="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-1.5 hover:border-purple-500/50 transition-colors">
-                <Zap className="w-3.5 h-3.5 text-purple-400" />
+              <div className="px-3.5 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700/80 text-xs font-semibold text-slate-200 flex items-center gap-2 hover:border-purple-500/50 transition-colors shadow-sm">
+                <Zap className="w-4 h-4 text-purple-400" />
                 <span>{t("cat_power")}</span>
               </div>
             </div>
           </div>
 
-          {/* High-Tech HUD Metrics Card */}
-          <div className="grid grid-cols-2 lg:grid-cols-1 gap-2.5 shrink-0 w-full lg:w-64">
-            <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center gap-3">
-              <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
-                <ShieldAlert className="w-4 h-4" />
+          {/* User-Friendly HUD Metrics Card */}
+          <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 shrink-0 w-full lg:w-64">
+            <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/90 flex items-center gap-3 shadow-md">
+              <div className="p-2.5 bg-emerald-500/15 text-emerald-400 rounded-xl border border-emerald-500/30">
+                <ShieldAlert className="w-4.5 h-4.5" />
               </div>
               <div>
                 <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">{t("hud_safety_gate")}</span>
@@ -132,13 +134,13 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center gap-3">
-              <div className="p-2 bg-sky-500/10 text-sky-400 rounded-xl border border-sky-500/20">
-                <Eye className="w-4 h-4" />
+            <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800/90 flex items-center gap-3 shadow-md">
+              <div className="p-2.5 bg-indigo-500/15 text-indigo-400 rounded-xl border border-indigo-500/30">
+                <Eye className="w-4.5 h-4.5" />
               </div>
               <div>
                 <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">{t("hud_vision_engine")}</span>
-                <span className="text-xs font-extrabold text-sky-300">{t("hud_multimodal")}</span>
+                <span className="text-xs font-extrabold text-indigo-300">{t("hud_multimodal")}</span>
               </div>
             </div>
           </div>

@@ -306,25 +306,25 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
               fileInputRef.current?.click();
             }
           }}
-          className={`relative border-2 border-dashed rounded-3xl p-8 md:p-12 text-center transition-all cursor-pointer overflow-hidden outline-none focus:ring-2 focus:ring-rose-500 ${
+          className={`relative border-2 border-dashed rounded-3xl p-8 md:p-12 text-center transition-all cursor-pointer overflow-hidden outline-none focus:ring-2 focus:ring-indigo-500 ${
             isDragging
-              ? "border-rose-500 bg-rose-500/20 scale-[0.99] shadow-[0_0_30px_rgba(244,63,94,0.3)]"
-              : "border-slate-700/90 bg-slate-950/70 hover:border-slate-500 hover:bg-slate-800/50 shadow-inner"
+              ? "border-indigo-400 bg-indigo-500/20 scale-[0.99] shadow-[0_0_30px_rgba(99,102,241,0.3)]"
+              : "border-slate-700/90 bg-slate-950/80 hover:border-indigo-500/80 hover:bg-slate-900/60 shadow-inner"
           }`}
           aria-label="Dropzone for image or video upload"
         >
           {/* Animated corner scan guides */}
-          <div className="absolute top-4 left-4 w-5 h-5 border-t-2 border-l-2 border-rose-500/80 rounded-tl-sm motion-reduce:animate-none" />
-          <div className="absolute top-4 right-4 w-5 h-5 border-t-2 border-r-2 border-rose-500/80 rounded-tr-sm motion-reduce:animate-none" />
-          <div className="absolute bottom-4 left-4 w-5 h-5 border-b-2 border-l-2 border-rose-500/80 rounded-bl-sm motion-reduce:animate-none" />
-          <div className="absolute bottom-4 right-4 w-5 h-5 border-b-2 border-r-2 border-rose-500/80 rounded-br-sm motion-reduce:animate-none" />
+          <div className="absolute top-4 left-4 w-5 h-5 border-t-2 border-l-2 border-indigo-400/80 rounded-tl-sm motion-reduce:animate-none" />
+          <div className="absolute top-4 right-4 w-5 h-5 border-t-2 border-r-2 border-indigo-400/80 rounded-tr-sm motion-reduce:animate-none" />
+          <div className="absolute bottom-4 left-4 w-5 h-5 border-b-2 border-l-2 border-indigo-400/80 rounded-bl-sm motion-reduce:animate-none" />
+          <div className="absolute bottom-4 right-4 w-5 h-5 border-b-2 border-r-2 border-indigo-400/80 rounded-br-sm motion-reduce:animate-none" />
 
           <div
-            className={`w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500/20 via-amber-500/10 to-slate-800 text-rose-400 flex items-center justify-center mx-auto mb-4 border border-rose-500/30 shadow-inner transition-transform duration-300 ${
+            className={`w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 via-rose-500/10 to-amber-500/20 text-indigo-300 flex items-center justify-center mx-auto mb-4 border border-indigo-500/30 shadow-lg transition-transform duration-300 ${
               isDragging ? "scale-125 rotate-6" : "group-hover:scale-110"
             }`}
           >
-            <Upload className="w-8 h-8 text-rose-400" />
+            <Upload className="w-8 h-8 text-indigo-400" />
           </div>
 
           <p className="text-slate-100 font-extrabold text-base md:text-lg">
@@ -342,7 +342,7 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
             <button
               type="button"
               onClick={startLiveCamera}
-              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs md:text-sm font-extrabold flex items-center gap-2 shadow-xl shadow-rose-950/60 transition-all hover:scale-105 active:scale-95 min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
+              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 via-rose-600 to-amber-500 hover:from-indigo-500 hover:to-amber-400 text-white text-xs md:text-sm font-extrabold flex items-center gap-2 shadow-xl shadow-indigo-950/60 transition-all hover:scale-105 active:scale-95 min-h-[44px] focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             >
               <Camera className="w-4 h-4" />
               <span>{t("use_camera")}</span>
@@ -351,7 +351,7 @@ export default function UploadSection({ onAnalyze, isLoading }: UploadSectionPro
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs md:text-sm font-bold flex items-center gap-2 transition-all hover:scale-105 min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
+              className="px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs md:text-sm font-bold flex items-center gap-2 transition-all hover:scale-105 min-h-[44px] focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             >
               <FileImage className="w-4 h-4 text-amber-400" />
               <span>{t("browse_files")}</span>

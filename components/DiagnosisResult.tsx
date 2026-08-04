@@ -237,7 +237,7 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
           <button
             type="button"
             onClick={onReset}
-            className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 text-white text-xs font-extrabold flex items-center gap-1.5 shadow-md transition-all hover:scale-105 min-h-[44px] focus:ring-2 focus:ring-rose-500 focus:outline-none"
+            className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-rose-600 to-amber-500 hover:from-indigo-500 hover:to-amber-400 text-white text-xs font-extrabold flex items-center gap-1.5 shadow-lg shadow-indigo-950/50 transition-all hover:scale-105 min-h-[44px] focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>{t("start_over")}</span>
