@@ -72,6 +72,30 @@ export function stopAllSpeech() {
   }
 }
 
+export function pauseSpeech() {
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
+    try {
+      if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+        window.speechSynthesis.pause();
+      }
+    } catch (e) {
+      console.warn("Failed to pause speech:", e);
+    }
+  }
+}
+
+export function resumeSpeech() {
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
+    try {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    } catch (e) {
+      console.warn("Failed to resume speech:", e);
+    }
+  }
+}
+
 export function playSpeech({ text, rate = 0.90, onEnd, onError }: SpeakOptions): SpeechSynthesisUtterance | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     if (onError) onError("Speech synthesis is not supported on this browser.");
@@ -124,7 +148,7 @@ export function playSpeech({ text, rate = 0.90, onEnd, onError }: SpeakOptions):
     if (onError) onError(e);
   };
 
-  // Chrome 15s keep-alive fix
+  // Chrome 15s keep-alive fix (only pulse if actively speaking and NOT PAUSED)
   keepAliveInterval = setInterval(() => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {

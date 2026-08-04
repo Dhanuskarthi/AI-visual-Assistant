@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Volume2, VolumeX, Pause, Play, Gauge } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
-import { playSpeech, stopAllSpeech } from "@/lib/speechHelper";
+import { playSpeech, stopAllSpeech, pauseSpeech, resumeSpeech } from "@/lib/speechHelper";
 
 interface VoiceGuidePlayerProps {
   repairSteps: string[];
@@ -71,14 +71,10 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
 
     if (isPlaying) {
       if (isPaused) {
-        if (typeof window !== "undefined" && "speechSynthesis" in window) {
-          window.speechSynthesis.resume();
-        }
+        resumeSpeech();
         setIsPaused(false);
       } else {
-        if (typeof window !== "undefined" && "speechSynthesis" in window) {
-          window.speechSynthesis.pause();
-        }
+        pauseSpeech();
         setIsPaused(true);
       }
     } else {
