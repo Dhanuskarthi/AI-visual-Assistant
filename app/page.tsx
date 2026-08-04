@@ -23,7 +23,7 @@ import {
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function IntroLandingPage() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
 
   // Scroll Intersection Observer States for calm, once-only scroll animations
   const [stepsVisible, setStepsVisible] = useState(false);
@@ -84,20 +84,20 @@ export default function IntroLandingPage() {
         {/* Active Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold tracking-wide shadow-lg">
           <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
-          <span>Multimodal AI Vision & Safety Screening Engine Active</span>
+          <span>{t("hero_badge")}</span>
         </div>
 
         {/* Hero Title */}
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
-          Instant Smart AI Diagnosis <br />
+          {t("hero_title_1")} <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-rose-400 to-amber-300">
-            For Any Device, Appliance or Vehicle
+            {t("hero_title_2")}
           </span>
         </h1>
 
         {/* Hero Subtitle */}
         <p className="text-sm sm:text-base md:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-          Snap a photo or record a quick video clip. FixVision pinpoints the exact issue, double-checks safety risks, and provides clear step-by-step repair guides with clear voice read-aloud.
+          {t("hero_desc")}
         </p>
 
         {/* Primary CTA Buttons */}
@@ -107,7 +107,7 @@ export default function IntroLandingPage() {
             aria-label="Start diagnosing device or vehicle issue"
             className="px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-rose-600 to-amber-500 hover:from-indigo-500 hover:to-amber-400 text-white font-extrabold text-sm md:text-base flex items-center gap-2 shadow-2xl shadow-indigo-950/80 transition-all hover:scale-105 active:scale-95 group focus:ring-2 focus:ring-indigo-500"
           >
-            <span>Start Diagnosing Now</span>
+            <span>{language === "ta" ? "இப்போதே ஆய்வைத் தொடங்கு" : "Start Diagnosing Now"}</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
 
@@ -116,7 +116,7 @@ export default function IntroLandingPage() {
             aria-label="Scroll to how it works section"
             className="px-6 py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-800 font-bold text-sm transition-all hover:scale-105 focus:ring-2 focus:ring-indigo-500"
           >
-            Explore How It Works
+            {t("how_it_works_btn")}
           </a>
         </div>
 
@@ -162,7 +162,7 @@ export default function IntroLandingPage() {
               {/* AI Detection Label Pill */}
               <rect x="210" y="85" width="110" height="28" rx="8" fill="#1e293b" stroke="#34d399" strokeWidth="1.5" />
               <text x="220" y="103" fill="#34d399" fontSize="11" fontWeight="bold" fontFamily="sans-serif">
-                ✓ Issue Detected
+                {language === "ta" ? "✓ பழுது கண்டறியப்பட்டது" : "✓ Issue Detected"}
               </text>
             </svg>
 
@@ -170,7 +170,7 @@ export default function IntroLandingPage() {
             <div className="absolute bottom-3 left-4 right-4 bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-2 flex items-center justify-between text-[11px] text-slate-300 font-mono">
               <span className="flex items-center gap-1.5 text-emerald-400 font-bold">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                AI SCANNING LIVE
+                {language === "ta" ? "AI நேரலை ஆய்வு" : "AI SCANNING LIVE"}
               </span>
               <span className="hidden sm:inline text-slate-400">FPS: 60 • LATENCY: 240ms</span>
               <span className="text-indigo-300 font-bold">MULTIMODAL 3.0</span>
@@ -182,93 +182,6 @@ export default function IntroLandingPage() {
       {/* ================= 10-FRAME VISUAL FLOW SEQUENCE ================= */}
       <section id="how-it-works" className="scroll-mt-24">
         <VisualFlowSequence />
-      </section>
-
-      {/* ================= STEP 3: FOUR-STEP ANIMATED SEQUENCE ================= */}
-      <section id="how-it-works" ref={stepsRef} className="max-w-5xl mx-auto px-4 space-y-10 scroll-mt-24">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            How FixVision AI Works in 4 Easy Steps
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
-            From capturing the broken component to guided DIY repairs and official brand support.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Capture */}
-          <div
-            className={`p-5 rounded-3xl bg-slate-900/80 border border-slate-800/90 shadow-xl space-y-3 transition-all duration-500 ${
-              stepsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
-          >
-            <div className="w-12 h-12 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center">
-              <Camera className={`w-6 h-6 ${stepsVisible ? "animate-shutter" : ""}`} />
-            </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 block mb-1">Step 1</span>
-              <h3 className="font-bold text-white text-base">Snap or Upload</h3>
-            </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Take a clear photo or short video clip of any error code, leaking hose, spark, or device component.
-            </p>
-          </div>
-
-          {/* Card 2: Analyze */}
-          <div
-            className={`p-5 rounded-3xl bg-slate-900/80 border border-slate-800/90 shadow-xl space-y-3 transition-all duration-500 delay-100 ${
-              stepsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
-          >
-            <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center relative overflow-hidden">
-              <Cpu className="w-6 h-6" />
-              {stepsVisible && <div className="absolute inset-x-0 top-0 h-0.5 bg-rose-400 animate-grid-sweep" />}
-            </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 block mb-1">Step 2</span>
-              <h3 className="font-bold text-white text-base">AI Vision Scan</h3>
-            </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Multimodal vision models analyze visual symptoms, error tags, and device models within seconds.
-            </p>
-          </div>
-
-          {/* Card 3: Safety Check */}
-          <div
-            className={`p-5 rounded-3xl bg-slate-900/80 border border-slate-800/90 shadow-xl space-y-3 transition-all duration-500 delay-200 ${
-              stepsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
-          >
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
-              <ShieldCheck className={`w-6 h-6 ${stepsVisible ? "animate-checkmark" : ""}`} />
-            </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block mb-1">Step 3</span>
-              <h3 className="font-bold text-white text-base">Safety Shield</h3>
-            </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Automated safety screening checks for electrical hazards, gas leaks, and high-voltage risks.
-            </p>
-          </div>
-
-          {/* Card 4: Get Your Fix */}
-          <div
-            className={`p-5 rounded-3xl bg-slate-900/80 border border-slate-800/90 shadow-xl space-y-3 transition-all duration-500 delay-300 ${
-              stepsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
-          >
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center">
-              <CheckSquare className="w-6 h-6" />
-            </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Step 4</span>
-              <h3 className="font-bold text-white text-base">Easy Fix & Voice</h3>
-            </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Follow step-by-step DIY checklists, listen to clear English audio guides, or contact certified pros.
-            </p>
-          </div>
-        </div>
       </section>
 
       {/* ================= STEP 4: SCROLL-TRIGGERED DETAIL SECTIONS ================= */}
@@ -290,22 +203,26 @@ export default function IntroLandingPage() {
 
           <div className="space-y-4">
             <span className="px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold">
-              01 • Snap or Upload Any Issue
+              {language === "ta" ? "01 • படம் அல்லது வீடியோ எடுக்கவும்" : "01 • Snap or Upload Any Issue"}
             </span>
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Capture Error Codes, Leaking Hoses or Broken Switches
+              {language === "ta"
+                ? "பிழை குறியீடு, கசியும் குழாய் அல்லது உடைந்த பாகங்களை படம் எடுக்கவும்"
+                : "Capture Error Codes, Leaking Hoses or Broken Switches"}
             </h3>
             <p className="text-sm text-slate-300 leading-relaxed">
-              Whether it’s a blinking washer error code, a loose bike battery terminal, or a tripped circuit breaker, simply take a photo or record a short video clip. Our photo framing guide ensures optimal capture accuracy.
+              {language === "ta"
+                ? "சலவை இயந்திர பிழை குறியீடு, தளர்வான பைக் பேட்டரி அல்லது சர்க்யூட் பிரேக்கர் எதுவாக இருந்தாலும், படம் அல்லது குறுகிய வீடியோ எடுக்கவும்."
+                : "Whether it’s a blinking washer error code, a loose bike battery terminal, or a tripped circuit breaker, simply take a photo or record a short video clip."}
             </p>
             <ul className="space-y-2 text-xs text-slate-300 font-medium">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Supports high-resolution photos & video clips up to 25 MB</span>
+                <span>{language === "ta" ? "உயர் தெளிவுத்திறன் படங்கள் & 25MB வரையிலான வீடியோ ஆதரவு" : "Supports high-resolution photos & video clips up to 25 MB"}</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Live camera capture built directly into your browser</span>
+                <span>{language === "ta" ? "உலாவியிலேயே அமைக்கப்பட்ட நேரலை கேமரா" : "Live camera capture built directly into your browser"}</span>
               </li>
             </ul>
           </div>
@@ -320,30 +237,34 @@ export default function IntroLandingPage() {
         >
           <div className="space-y-4 order-2 md:order-1">
             <span className="px-3 py-1 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-bold">
-              02 • Multimodal AI Analysis
+              {language === "ta" ? "02 • AI விஷன் பகுப்பாய்வு" : "02 • Multimodal AI Analysis"}
             </span>
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Cross-Verified Vision Intelligence across Categories
+              {language === "ta"
+                ? "பல்வேறு பிரிவுகளில் AI காட்சி துல்லியம்"
+                : "Cross-Verified Vision Intelligence across Categories"}
             </h3>
             <p className="text-sm text-slate-300 leading-relaxed">
-              FixVision combines state-of-the-art vision models (NVIDIA Llama 3.2 Vision, Gemini 2.0 Flash, and GPT-4o) to visually inspect component damage, identify model tags, and detect structural faults in real time.
+              {language === "ta"
+                ? "NVIDIA Llama 3.2 Vision, Gemini 2.0 Flash மற்றும் GPT-4o ஆகிய முன்னணி AI மாதிரிகள் உங்கள் படத்தின் பழுதுகளை உடனடியாக பரிசோதிக்கின்றன."
+                : "FixVision combines state-of-the-art vision models (NVIDIA Llama 3.2 Vision, Gemini 2.0 Flash, and GPT-4o) to visually inspect component damage."}
             </p>
             <div className="grid grid-cols-2 gap-2 pt-1 text-xs font-semibold text-slate-200">
               <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2">
                 <HomeIcon className="w-4 h-4 text-emerald-400" />
-                <span>Home Appliances</span>
+                <span>{t("cat_home")}</span>
               </div>
               <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2">
                 <Smartphone className="w-4 h-4 text-sky-400" />
-                <span>Mobiles & Laptops</span>
+                <span>{t("cat_mobile")}</span>
               </div>
               <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2">
                 <Car className="w-4 h-4 text-amber-400" />
-                <span>Bikes & Vehicles</span>
+                <span>{t("cat_vehicle")}</span>
               </div>
               <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center gap-2">
                 <Zap className="w-4 h-4 text-purple-400" />
-                <span>Power Systems</span>
+                <span>{t("cat_power")}</span>
               </div>
             </div>
           </div>
@@ -373,17 +294,21 @@ export default function IntroLandingPage() {
 
           <div className="space-y-4">
             <span className="px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold">
-              03 • Automated Safety Screening
+              {language === "ta" ? "03 • தானியங்கி பாதுகாப்பு பரிசோதனை" : "03 • Automated Safety Screening"}
             </span>
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Hardcoded Risk Screening Before You Touch Anything
+              {language === "ta"
+                ? "நீங்கள் தொடுவதற்கு முன் மின்சார & எரிவாயு அபாய ஆய்வு"
+                : "Hardcoded Risk Screening Before You Touch Anything"}
             </h3>
             <p className="text-sm text-slate-300 leading-relaxed">
-              Your safety is our top priority. Before suggesting any DIY fix steps, FixVision runs hard-coded screening rules for high-voltage risks, gas leaks, water leaks, and fire hazards. If an issue requires a certified technician, we notify you immediately.
+              {language === "ta"
+                ? "உங்கள் பாதுகாப்பே எங்களின் முதல் முன்னுரிமை. உயர் மின்அழுத்தம், எரிவாயு கசிவு மற்றும் தீ அபாயங்கள் தானியங்கி முறைகளால் உடனுக்குடன் கண்டறியப்படுகின்றன."
+                : "Your safety is our top priority. FixVision runs hard-coded screening rules for high-voltage risks, gas leaks, and fire hazards."}
             </p>
             <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex items-center gap-3 text-xs text-emerald-200">
               <ShieldAlert className="w-5 h-5 text-emerald-400 shrink-0" />
-              <span>Safety Rule Screening verified before output generation.</span>
+              <span>{language === "ta" ? "பாதுகாப்பு விதிகள் பரிசோதிக்கப்பட்டு உறுதிசெய்யப்படுகின்றன." : "Safety Rule Screening verified before output generation."}</span>
             </div>
           </div>
         </div>
@@ -397,22 +322,26 @@ export default function IntroLandingPage() {
         >
           <div className="space-y-4 order-2 md:order-1">
             <span className="px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold">
-              04 • Guided DIY & Voice Assistance
+              {language === "ta" ? "04 • எளிய பழுதுபார்க்கும் வழிகாட்டி" : "04 • Guided DIY & Voice Assistance"}
             </span>
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Clear Step-by-Step Fixes with Voice Read-Aloud
+              {language === "ta"
+                ? "குரல் வழிகாட்டலுடன் படி-படியாக பழுதுபார்க்கும் முறை"
+                : "Clear Step-by-Step Fixes with Voice Read-Aloud"}
             </h3>
             <p className="text-sm text-slate-300 leading-relaxed">
-              Follow clean, interactive DIY step checklists complete with estimated fix times, required tools lists, and clear English audio read-aloud options. If professional service is required, connect with official brand hotlines instantly.
+              {language === "ta"
+                ? "தேவையான கருவிகள், பழுதுபார்க்கும் நேரம் மற்றும் குரல் வழிகாட்டலுடன் எளிய பழுதுபார்க்கும் முறைகளைப் பின்பற்றுங்கள்."
+                : "Follow clean, interactive DIY step checklists complete with estimated fix times, required tools lists, and clear English audio read-aloud."}
             </p>
             <ul className="space-y-2 text-xs text-slate-300 font-medium">
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Dedicated Clear English Read-Aloud Voice Player with speed control</span>
+                <span>{language === "ta" ? "தெளிவான குரல் வழிகாட்டி இயக்கி" : "Dedicated Clear English Read-Aloud Voice Player"}</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>Interactive AI Repair Assistant Chatbot for follow-up questions</span>
+                <span>{language === "ta" ? "சந்தேகங்களைக் கேட்க AI பழுதுபார்க்கும் உதவியாளர்" : "Interactive AI Repair Assistant Chatbot for follow-up questions"}</span>
               </li>
             </ul>
           </div>
@@ -432,11 +361,13 @@ export default function IntroLandingPage() {
         <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 space-y-4 shadow-xl text-center">
           <div className="flex items-center justify-center gap-2 text-amber-400 font-bold text-xs">
             <AlertTriangle className="w-4 h-4 shrink-0" />
-            <span>AI-Assisted Guidance Safety Disclaimer</span>
+            <span>{language === "ta" ? "AI பாதுகாப்பு எச்சரிக்கை" : "AI-Assisted Guidance Safety Disclaimer"}</span>
           </div>
 
           <p className="text-xs text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            FixVision AI provides diagnostic assistance and educational troubleshooting guidance. It is not a substitute for a licensed professional technician for gas lines, high-voltage electrical panels, or hazardous repairs.
+            {language === "ta"
+              ? "FixVision AI பழுதுபார்க்கும் உதவிகளை வழங்குகிறது. இது எரிவாயு மற்றும் உயர் மின்னழுத்த பழுதுகளுக்கான தொழில்முறை நிபுணருக்கு மாற்றாகாது."
+              : "FixVision AI provides diagnostic assistance and educational troubleshooting guidance. It is not a substitute for a licensed professional technician for gas lines, high-voltage electrical panels, or hazardous repairs."}
           </p>
 
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3 text-[11px] font-mono text-slate-400 border-t border-slate-800/80">
@@ -454,10 +385,12 @@ export default function IntroLandingPage() {
         <div className="relative p-8 md:p-10 rounded-3xl bg-gradient-to-r from-indigo-950 via-slate-900 to-rose-950 border border-indigo-500/40 shadow-2xl text-center space-y-5 overflow-hidden">
           <div className="relative z-10 space-y-2">
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Ready to Diagnose Your Device or Vehicle?
+              {language === "ta" ? "உங்கள் சாதனத்தை ஆய்வு செய்யத் தயாரா?" : "Ready to Diagnose Your Device or Vehicle?"}
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto">
-              Snap a picture or upload media to get instant AI diagnostic results in seconds.
+              {language === "ta"
+                ? "புகைப்படம் அல்லது வீடியோ பதிவேற்றி நொடிகளில் AI ஆய்வு முடிவுகளைப் பெறுங்கள்."
+                : "Snap a picture or upload media to get instant AI diagnostic results in seconds."}
             </p>
           </div>
 
@@ -468,7 +401,7 @@ export default function IntroLandingPage() {
               className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-rose-600 to-amber-500 hover:from-indigo-500 hover:to-amber-400 text-white font-extrabold text-sm md:text-base shadow-2xl transition-all hover:scale-105 active:scale-95 focus:ring-2 focus:ring-indigo-500"
             >
               <Wrench className="w-5 h-5" />
-              <span>Start Free Diagnosis Now</span>
+              <span>{language === "ta" ? "இலவச ஆய்வைத் தொடங்குங்கள்" : "Start Free Diagnosis Now"}</span>
             </Link>
           </div>
         </div>
