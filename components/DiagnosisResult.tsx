@@ -27,7 +27,9 @@ import {
   Copy,
   RotateCcw,
   Info,
-  ShieldCheck
+  ShieldCheck,
+  Volume2,
+  VolumeX
 } from "lucide-react";
 
 import { useLanguage } from "@/context/LanguageContext";
@@ -51,9 +53,44 @@ export default function DiagnosisResult({
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
   const [checkedTools, setCheckedTools] = useState<Record<number, boolean>>({});
   const [copiedStepIdx, setCopiedStepIdx] = useState<number | null>(null);
+  const [isSpeakingSummary, setIsSpeakingSummary] = useState<boolean>(false);
 
   const [feedbackStatus, setFeedbackStatus] = useState<string | null>(null);
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState<boolean>(false);
+
+  const toggleSpeakSummary = () => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+    if (isSpeakingSummary) {
+      window.speechSynthesis.cancel();
+      setIsSpeakingSummary(false);
+    } else {
+      window.speechSynthesis.cancel();
+      setIsSpeakingSummary(true);
+
+      const summaryText = `${diagnosis.appliance_type}. ${diagnosis.identified_issue}. ${
+        diagnosis.safety_reasoning || ""
+      }`;
+      const utterance = new SpeechSynthesisUtterance(summaryText);
+      utterance.rate = 0.92;
+
+      if (language === "ta") {
+        utterance.lang = "ta-IN";
+        const voices = window.speechSynthesis.getVoices();
+        const taVoice = voices.find(
+          (v) => v.lang.toLowerCase().startsWith("ta") || v.lang.toLowerCase().includes("ta")
+        );
+        if (taVoice) utterance.voice = taVoice;
+      } else {
+        utterance.lang = "en-US";
+      }
+
+      utterance.onend = () => setIsSpeakingSummary(false);
+      utterance.onerror = () => setIsSpeakingSummary(false);
+
+      window.speechSynthesis.speak(utterance);
+    }
+  };
 
   // Progressive Disclosure: default steps visible
   const [isStepsExpanded, setIsStepsExpanded] = useState<boolean>(true);
@@ -235,11 +272,26 @@ Engine: ${diagnosis.ai_model_used || "FixVision AI"}`;
 
       {/* Identified Issue Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="md:col-span-2 bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 md:p-5 space-y-1">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-            {t("observed_fault")}
-          </span>
-          <p className="text-base md:text-lg font-extrabold text-white leading-snug">
+        <div className="md:col-span-2 bg-slate-800/50 border border-slate-700/70 rounded-2xl p-4 md:p-5 space-y-1 relative">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+              {t("observed_fault")}
+            </span>
+            <button
+              type="button"
+              onClick={toggleSpeakSummary}
+              className={`text-xs px-2.5 py-1 rounded-xl font-bold flex items-center gap-1.5 transition-colors ${
+                isSpeakingSummary
+                  ? "bg-amber-500 text-slate-950 animate-pulse"
+                  : "bg-slate-700/80 hover:bg-slate-700 text-amber-400 border border-amber-500/30"
+              }`}
+              title={t("read_summary")}
+            >
+              {isSpeakingSummary ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+              <span>{isSpeakingSummary ? t("stop_listening") : t("read_summary")}</span>
+            </button>
+          </div>
+          <p className="text-base md:text-lg font-extrabold text-white leading-snug pt-1">
             {diagnosis.identified_issue}
           </p>
         </div>

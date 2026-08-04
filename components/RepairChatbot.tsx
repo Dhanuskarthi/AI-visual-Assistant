@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageSquare, Send, Bot, User, Sparkles, RefreshCw, ShieldAlert } from "lucide-react";
+import { MessageSquare, Send, Bot, User, Sparkles, RefreshCw, ShieldAlert, Volume2, VolumeX } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface RepairChatbotProps {
@@ -24,6 +24,7 @@ export default function RepairChatbot({ applianceType, identifiedIssue, isDiySaf
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [speakingMsgIndex, setSpeakingMsgIndex] = useState<number | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -35,6 +36,37 @@ export default function RepairChatbot({ applianceType, identifiedIssue, isDiySaf
   }, [messages, isLoading]);
 
   const { language, t } = useLanguage();
+
+  const toggleSpeakMessage = (index: number, text: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+    if (speakingMsgIndex === index) {
+      window.speechSynthesis.cancel();
+      setSpeakingMsgIndex(null);
+    } else {
+      window.speechSynthesis.cancel();
+      setSpeakingMsgIndex(index);
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.95;
+
+      if (language === "ta") {
+        utterance.lang = "ta-IN";
+        const voices = window.speechSynthesis.getVoices();
+        const taVoice = voices.find(
+          (v) => v.lang.toLowerCase().startsWith("ta") || v.lang.toLowerCase().includes("ta")
+        );
+        if (taVoice) utterance.voice = taVoice;
+      } else {
+        utterance.lang = "en-US";
+      }
+
+      utterance.onend = () => setSpeakingMsgIndex(null);
+      utterance.onerror = () => setSpeakingMsgIndex(null);
+
+      window.speechSynthesis.speak(utterance);
+    }
+  };
 
   const handleSend = async (textToSend?: string) => {
     const query = (textToSend || input).trim();
@@ -128,13 +160,31 @@ export default function RepairChatbot({ applianceType, identifiedIssue, isDiySaf
             )}
 
             <div
-              className={`max-w-[85%] p-3 rounded-2xl text-xs md:text-sm leading-relaxed ${
+              className={`max-w-[85%] p-3 rounded-2xl text-xs md:text-sm leading-relaxed relative group ${
                 msg.role === "user"
                   ? "bg-rose-600 text-white rounded-tr-none font-medium"
-                  : "bg-slate-800/90 text-slate-200 border border-slate-700 rounded-tl-none"
+                  : "bg-slate-800/90 text-slate-200 border border-slate-700 rounded-tl-none pr-9"
               }`}
             >
               {msg.content}
+              {msg.role === "assistant" && (
+                <button
+                  type="button"
+                  onClick={() => toggleSpeakMessage(idx, msg.content)}
+                  className={`absolute right-2 top-2.5 p-1 rounded-md transition-colors ${
+                    speakingMsgIndex === idx
+                      ? "text-amber-400 bg-amber-950/60 border border-amber-500/40 animate-pulse"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-700/60"
+                  }`}
+                  title={speakingMsgIndex === idx ? t("stop_listening") : t("listen_response")}
+                >
+                  {speakingMsgIndex === idx ? (
+                    <VolumeX className="w-3.5 h-3.5 text-rose-400" />
+                  ) : (
+                    <Volume2 className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              )}
             </div>
 
             {msg.role === "user" && (
