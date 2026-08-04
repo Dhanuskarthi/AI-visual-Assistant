@@ -67,10 +67,13 @@ export default function DiagnosisResult({
     } else {
       setIsSpeakingSummary(true);
 
-      const summaryText = `Appliance: ${diagnosis.appliance_type}. Identified Issue: ${diagnosis.identified_issue}. Safety Notice: ${diagnosis.safety_reasoning || ""}`;
+      const localizedIssue = getLocalizedText(diagnosis.identified_issue, language);
+      const localizedSafety = getLocalizedText(diagnosis.safety_reasoning || "", language);
+      const summaryText = `${diagnosis.appliance_type}. ${localizedIssue}. ${localizedSafety}`;
 
       playSpeech({
         text: summaryText,
+        lang: language,
         rate: 0.90,
         onEnd: () => setIsSpeakingSummary(false),
         onError: () => setIsSpeakingSummary(false)

@@ -1,5 +1,8 @@
+import { Language } from "./translations";
+
 export interface SpeakOptions {
   text: string;
+  lang?: Language;
   rate?: number;
   onEnd?: () => void;
   onError?: (err: any) => void;
@@ -7,7 +10,7 @@ export interface SpeakOptions {
 
 let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
 
-// Clean markdown, symbols, and formatting for crystal clear TTS speech output
+// Clean markdown, symbols, and formatting for clear TTS speech output
 export function cleanTextForSpeech(rawText: string): string {
   if (!rawText) return "";
   return rawText
@@ -70,7 +73,7 @@ export function stopAllSpeech() {
   }
 }
 
-export function playSpeech({ text, rate = 0.90, onEnd, onError }: SpeakOptions): SpeechSynthesisUtterance | null {
+export function playSpeech({ text, lang = "en", rate = 0.90, onEnd, onError }: SpeakOptions): SpeechSynthesisUtterance | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     if (onError) onError("Speech synthesis is not supported on this browser.");
     return null;
@@ -81,16 +84,31 @@ export function playSpeech({ text, rate = 0.90, onEnd, onError }: SpeakOptions):
 
   const cleanedText = cleanTextForSpeech(text);
   const utterance = new SpeechSynthesisUtterance(cleanedText);
-
-  // Dedicated English Voice configuration for crystal clear speech
-  utterance.lang = "en-US";
-  utterance.rate = rate; // Clear pacing for steps (0.90)
-  utterance.pitch = 1.0;
-
   const voices = window.speechSynthesis.getVoices();
-  const bestEnglishVoice = findBestEnglishVoice(voices);
-  if (bestEnglishVoice) {
-    utterance.voice = bestEnglishVoice;
+
+  if (lang === "ta") {
+    utterance.lang = "ta-IN";
+    utterance.rate = 0.88; // Clear Tamil pacing
+    utterance.pitch = 1.0;
+
+    const taVoice = voices.find(
+      (v) =>
+        v.lang.toLowerCase().startsWith("ta") ||
+        v.lang.toLowerCase().includes("ta") ||
+        v.name.toLowerCase().includes("tamil")
+    );
+    if (taVoice) {
+      utterance.voice = taVoice;
+    }
+  } else {
+    utterance.lang = "en-US";
+    utterance.rate = rate; // Clear English pacing (0.90)
+    utterance.pitch = 1.0;
+
+    const bestEnglishVoice = findBestEnglishVoice(voices);
+    if (bestEnglishVoice) {
+      utterance.voice = bestEnglishVoice;
+    }
   }
 
   utterance.onend = () => {

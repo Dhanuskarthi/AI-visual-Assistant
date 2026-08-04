@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Volume2, VolumeX, Pause, Play, Gauge } from "lucide-react";
+import { Volume2, VolumeX, Pause, Play, Globe, Gauge } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import { Language } from "@/lib/translations";
+import { getLocalizedText } from "@/lib/translationUtils";
 import { playSpeech, stopAllSpeech } from "@/lib/speechHelper";
 
 interface VoiceGuidePlayerProps {
@@ -11,7 +13,8 @@ interface VoiceGuidePlayerProps {
 }
 
 export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGuidePlayerProps) {
-  const { t } = useLanguage();
+  const { language: globalLang, t } = useLanguage();
+  const [voiceLang, setVoiceLang] = useState<Language>(globalLang);
   const [voiceRate, setVoiceRate] = useState<number>(0.90);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -33,6 +36,14 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
     };
   }, []);
 
+  // Sync voice language when site language changes
+  useEffect(() => {
+    setVoiceLang(globalLang);
+    if (isPlaying) {
+      handleLanguageSwitch(globalLang);
+    }
+  }, [globalLang]);
+
   const handleStop = () => {
     stopAllSpeech();
     setIsPlaying(false);
@@ -40,22 +51,24 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
     setCurrentStepIndex(0);
   };
 
-  const speakStep = (index: number, activeRate: number) => {
+  const speakStep = (index: number, activeLang: Language, activeRate: number) => {
     if (index >= repairSteps.length) {
       handleStop();
       return;
     }
 
     setCurrentStepIndex(index);
-    const stepText = repairSteps[index];
-    const textToSpeak = `Step ${index + 1}: ${stepText}`;
+    const stepContent = getLocalizedText(repairSteps[index], activeLang);
+    const prefix = activeLang === "ta" ? `படி ${index + 1}: ` : `Step ${index + 1}: `;
+    const textToSpeak = `${prefix}${stepContent}`;
 
     playSpeech({
       text: textToSpeak,
+      lang: activeLang,
       rate: activeRate,
       onEnd: () => {
         if (index + 1 < repairSteps.length) {
-          speakStep(index + 1, activeRate);
+          speakStep(index + 1, activeLang, activeRate);
         } else {
           handleStop();
         }
@@ -84,14 +97,22 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
     } else {
       setIsPlaying(true);
       setIsPaused(false);
-      speakStep(0, voiceRate);
+      speakStep(0, voiceLang, voiceRate);
+    }
+  };
+
+  const handleLanguageSwitch = (newLang: Language) => {
+    setVoiceLang(newLang);
+    if (isPlaying) {
+      setIsPaused(false);
+      speakStep(currentStepIndex, newLang, voiceRate);
     }
   };
 
   const handleRateChange = (newRate: number) => {
     setVoiceRate(newRate);
     if (isPlaying && !isPaused) {
-      speakStep(currentStepIndex, newRate);
+      speakStep(currentStepIndex, voiceLang, newRate);
     }
   };
 
@@ -111,7 +132,7 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
             <h4 className="font-bold text-white text-xs md:text-sm flex items-center gap-2">
               <span>{t("voice_guide_title")}</span>
               <span className="text-[10px] bg-amber-500/30 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-semibold">
-                Clear English Voice
+                {voiceLang === "ta" ? "தமிழ் (Tamil)" : "English (US)"}
               </span>
               {isPlaying && (
                 <span className="text-[10px] bg-amber-400 text-slate-950 px-2 py-0.5 rounded font-extrabold uppercase">
@@ -120,7 +141,9 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
               )}
             </h4>
             <p className="text-xs text-slate-300 mt-0.5">
-              Clear English audio instructions for repairing your {applianceType}.
+              {voiceLang === "ta"
+                ? `உங்கள் ${applianceType} பழுதுபார்ப்பதற்கான நேரலை குரல் வழிகாட்டி.`
+                : `Clear audio instructions for repairing your ${applianceType}.`}
             </p>
           </div>
         </div>
@@ -148,7 +171,7 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
               )
             ) : (
               <>
-                <Volume2 className="w-3.5 h-3.5" /> Read Aloud (English)
+                <Volume2 className="w-3.5 h-3.5" /> {voiceLang === "ta" ? "வாசித்துக்காட்டு" : "Read Aloud"}
               </>
             )}
           </button>
@@ -166,30 +189,64 @@ export default function VoiceGuidePlayer({ repairSteps, applianceType }: VoiceGu
         </div>
       </div>
 
-      {/* Speed / Pacing Controls */}
-      <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-3 text-xs">
-        <span className="text-slate-400 flex items-center gap-1 text-[11px] font-medium">
-          <Gauge className="w-3.5 h-3.5 text-amber-400" /> {t("voice_speed")}:
-        </span>
-        <div className="flex items-center bg-slate-950/80 p-0.5 rounded-lg border border-slate-800">
-          {[
-            { label: "0.85x (Relaxed)", val: 0.85 },
-            { label: "0.90x (Clear)", val: 0.90 },
-            { label: "1.10x (Fast)", val: 1.10 }
-          ].map((rateOption) => (
+      {/* Voice Controls Bar: Language Selector & Speed Controls */}
+      <div className="pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+        {/* Voice Language Selector */}
+        <div className="flex items-center gap-2">
+          <span className="text-slate-400 flex items-center gap-1 text-[11px] font-medium">
+            <Globe className="w-3.5 h-3.5 text-amber-400" /> {t("voice_lang_label")}:
+          </span>
+          <div className="flex items-center bg-slate-950/80 p-0.5 rounded-lg border border-slate-800">
             <button
-              key={rateOption.label}
               type="button"
-              onClick={() => handleRateChange(rateOption.val)}
-              className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
-                Math.abs(voiceRate - rateOption.val) < 0.03
-                  ? "bg-slate-700 text-amber-300 border border-amber-500/30 shadow-sm"
+              onClick={() => handleLanguageSwitch("en")}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${
+                voiceLang === "en"
+                  ? "bg-amber-500 text-slate-950 shadow-sm"
                   : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              {rateOption.label}
+              🇬🇧 English
             </button>
-          ))}
+            <button
+              type="button"
+              onClick={() => handleLanguageSwitch("ta")}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all ${
+                voiceLang === "ta"
+                  ? "bg-amber-500 text-slate-950 shadow-sm"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              🇮🇳 தமிழ்
+            </button>
+          </div>
+        </div>
+
+        {/* Speed / Pacing Controls */}
+        <div className="flex items-center gap-2">
+          <span className="text-slate-400 flex items-center gap-1 text-[11px] font-medium">
+            <Gauge className="w-3.5 h-3.5 text-amber-400" /> {t("voice_speed")}:
+          </span>
+          <div className="flex items-center bg-slate-950/80 p-0.5 rounded-lg border border-slate-800">
+            {[
+              { label: "0.85x", val: 0.85 },
+              { label: "0.90x", val: 0.90 },
+              { label: "1.10x", val: 1.10 }
+            ].map((rateOption) => (
+              <button
+                key={rateOption.label}
+                type="button"
+                onClick={() => handleRateChange(rateOption.val)}
+                className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
+                  Math.abs(voiceRate - rateOption.val) < 0.03
+                    ? "bg-slate-700 text-amber-300 border border-amber-500/30 shadow-sm"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                {rateOption.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
