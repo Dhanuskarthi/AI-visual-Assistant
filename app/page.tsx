@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import VisualFlowSequence from "@/components/VisualFlowSequence";
+import QuickDemoModal from "@/components/QuickDemoModal";
 import {
   Camera,
   Cpu,
@@ -18,12 +19,15 @@ import {
   CheckCircle2,
   AlertTriangle,
   FileCheck,
-  Wrench
+  Wrench,
+  HelpCircle,
+  ChevronDown
 } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
 
 export default function IntroLandingPage() {
   const { language, t } = useLanguage();
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // Scroll Intersection Observer States for calm, once-only scroll animations
   const [stepsVisible, setStepsVisible] = useState(false);
@@ -79,7 +83,7 @@ export default function IntroLandingPage() {
       <div className="absolute top-12 left-1/4 w-[500px] h-[500px] bg-indigo-600/15 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
       <div className="absolute top-96 right-1/4 w-[500px] h-[500px] bg-rose-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
 
-      {/* ================= STEP 2: HERO SECTION ================= */}
+      {/* ================= HERO SECTION ================= */}
       <section className="relative pt-4 md:pt-8 text-center space-y-8 max-w-4xl mx-auto px-4">
         {/* Active Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold tracking-wide shadow-lg">
@@ -101,7 +105,7 @@ export default function IntroLandingPage() {
         </p>
 
         {/* Primary CTA Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           <Link
             href="/diagnose"
             aria-label="Start diagnosing device or vehicle issue"
@@ -111,10 +115,12 @@ export default function IntroLandingPage() {
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
 
+          <QuickDemoModal />
+
           <a
             href="#how-it-works"
             aria-label="Scroll to how it works section"
-            className="px-6 py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-800 font-bold text-sm transition-all hover:scale-105 focus:ring-2 focus:ring-indigo-500"
+            className="px-5 py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-800 font-bold text-xs md:text-sm transition-all hover:scale-105 focus:ring-2 focus:ring-indigo-500"
           >
             {t("how_it_works_btn")}
           </a>
@@ -355,8 +361,63 @@ export default function IntroLandingPage() {
         </div>
       </section>
 
+      {/* ================= FAQ ACCORDION SECTION ================= */}
+      <section className="max-w-4xl mx-auto px-4 space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold">
+            <HelpCircle className="w-3.5 h-3.5" />
+            <span>{language === "ta" ? "அடிக்கடி கேட்கப்படும் கேள்விகள்" : "Frequently Asked Questions"}</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+            {language === "ta" ? "அடிக்கடி கேட்கப்படும் கேள்விகள்" : "Everything You Need to Know"}
+          </h2>
+        </div>
+
+        <div className="space-y-3">
+          {[
+            {
+              q: language === "ta" ? "FixVision AI எவ்வாறு பழுதுகளைக் கண்டறிகிறது?" : "How does FixVision AI identify faults from a photo?",
+              a: language === "ta"
+                ? "உங்கள் சாதனப் படத்தின் பிழை குறியீடுகள், பிராண்ட் சின்னங்கள் மற்றும் வெளிப்புற சேதங்களை NVIDIA Llama 3.2, Gemini 2.5 மற்றும் GPT-4o மாடல்கள் மூலம் பகுப்பாய்வு செய்து தீர்வு வழங்குகிறது."
+                : "FixVision analyzes your photo or video clip using multimodal vision models (NVIDIA Llama 3.2 Vision, Gemini 2.5 Flash, and GPT-4o). It extracts digital error codes (e.g. E4, LE), brand labels, and physical component defects to match against repair knowledge bases."
+            },
+            {
+              q: language === "ta" ? "பாதுகாப்பற்ற சூழ்நிலைகளில் என்ன நடக்கும்?" : "What happens if a hazardous or high-risk repair is detected?",
+              a: language === "ta"
+                ? "எரிவாயு கசிவு, உயர் மின்அழுத்தம் அல்லது வீங்கிய பேட்டரிகள் கண்டறியப்பட்டால், DIY பழுதுபார்க்கும் படிகள் தடுக்கப்பட்டு அவசர உதவி எண்கள் காண்பிக்கப்படும்."
+                : "FixVision features a hard-coded Safety Gate Filter. If flammable gas leaks, high-voltage panel arcing, brake failure, or swollen Li-ion batteries are detected, DIY repair steps are immediately blocked and emergency helpline numbers (e.g. 1906 for Gas) are displayed."
+            },
+            {
+              q: language === "ta" ? "தொழில்நுட்ப வல்லுநரின் உதவி தேவைப்பட்டால் என்ன செய்வது?" : "Can FixVision connect me with official service technicians?",
+              a: language === "ta"
+                ? "ஆம், சாம்சங், எல்ஜி, ஆப்பிள் போன்ற பிராண்டுகளின் அதிகாரப்பூர்வ சேவை மையங்கள் மற்றும் Urban Company, Google Maps மூலம் அருகில் உள்ள தொழில்முறை வல்லுநர்களை உடனடியாக தொடர்பு கொள்ளலாம்."
+                : "Yes! Every diagnostic report includes instant links to official brand customer support hotlines (Samsung, LG, Whirlpool, Apple, Maruti, Tata, etc.) as well as Urban Company and Google Maps local technician locators."
+            }
+          ].map((faq, idx) => (
+            <div
+              key={idx}
+              className="rounded-2xl bg-slate-900/90 border border-slate-800 overflow-hidden shadow-md transition-all"
+            >
+              <button
+                type="button"
+                onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                className="w-full p-4 text-left flex items-center justify-between gap-4 font-bold text-sm text-white hover:text-indigo-300 transition-colors"
+              >
+                <span>{faq.q}</span>
+                <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-300 ${openFaq === idx ? "rotate-180 text-indigo-400" : ""}`} />
+              </button>
+              {openFaq === idx && (
+                <div className="px-4 pb-4 text-xs text-slate-300 leading-relaxed border-t border-slate-800/80 pt-3 animate-fade-in">
+                  {faq.a}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ================= STEP 5: TRUST FOOTER & FINAL CTA STRIP ================= */}
-      <section className="max-w-4xl mx-auto px-4 space-y-8 pt-8">
+      <section className="max-w-4xl mx-auto px-4 space-y-8 pt-4">
         {/* Safety Disclaimer & Multi-Model Trust Bar */}
         <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 space-y-4 shadow-xl text-center">
           <div className="flex items-center justify-center gap-2 text-amber-400 font-bold text-xs">
